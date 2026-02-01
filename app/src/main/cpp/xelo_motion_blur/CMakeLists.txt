@@ -9,43 +9,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -fvisibility=hidden -ffunction-secti
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fvisibility=hidden -ffunction-sections -fdata-sections -w")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--gc-sections,--strip-all -s")
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Preloader PROPERTY EXCLUDE_FROM_ALL ON)
-
-include(FetchContent)
-
-FetchContent_Declare(
-    fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG 10.2.1
-)
-FetchContent_MakeAvailable(fmt)
-
-FetchContent_Declare(
-    preloader_android
-    GIT_REPOSITORY https://github.com/LiteLDev/preloader-android.git
-    GIT_TAG main
-)
-FetchContent_GetProperties(preloader_android)
-if(NOT preloader_android_POPULATED)
-    FetchContent_Populate(preloader_android)
-    
-    file(READ "${preloader_android_SOURCE_DIR}/src/pl/Logger.h" LOGGER_CONTENT)
-    string(REPLACE "#include <format>" "#include <fmt/format.h>" LOGGER_CONTENT "${LOGGER_CONTENT}")
-    string(REPLACE "std::vformat" "fmt::vformat" LOGGER_CONTENT "${LOGGER_CONTENT}")
-    string(REPLACE "std::make_format_args" "fmt::make_format_args" LOGGER_CONTENT "${LOGGER_CONTENT}")
-    file(WRITE "${preloader_android_SOURCE_DIR}/src/pl/Logger.h" "${LOGGER_CONTENT}")
-    
-    add_subdirectory(${preloader_android_SOURCE_DIR} ${preloader_android_BINARY_DIR})
-endif()
-
-target_link_libraries(preloader PUBLIC fmt::fmt)
-
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/src/ImGui
-    ${CMAKE_SOURCE_DIR}/src/ImGui/backends
-)
-
 set(SOURCES
     src/main.cpp
     src/ImGui/imgui.cpp
@@ -57,4 +20,25 @@ set(SOURCES
 )
 
 add_library(MotionBlur SHARED ${SOURCES})
-target_link_libraries(MotionBlur preloader log android EGL GLESv3 GLESv2)
+
+target_include_directories(MotionBlur PRIVATE
+    src
+    src/ImGui
+    src/ImGui/backends
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Preloader/src
+)
+
+find_library(log-lib log)
+find_library(android-lib android)
+find_library(egl-lib EGL)
+find_library(glesv3-lib GLESv3)
+find_library(glesv2-lib GLESv2)
+
+target_link_libraries(MotionBlur PRIVATE
+    preloader
+    ${log-lib}
+    ${android-lib}
+    ${egl-lib}
+    ${glesv3-lib}
+    ${glesv2-lib}
+)
