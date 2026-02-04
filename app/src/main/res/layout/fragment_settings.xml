@@ -139,18 +139,18 @@
     android:padding="8dp" />
 
         <TextView
-            android:id="@+id/selected_version_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="No version selected"
-            android:textSize="16sp"
-            android:textColor="#F44336"
-            android:padding="16dp"
-            android:gravity="center_vertical"
-            android:background="@color/surfaceVariant"
-            android:layout_marginTop="12dp"
-            android:clickable="true"
-            android:focusable="true" />
+    android:id="@+id/selected_version_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="No version selected"
+    android:textSize="16sp"
+    android:textColor="@color/onSurfaceVariant"
+    android:padding="16dp"
+    android:gravity="center_vertical"
+    android:background="@drawable/selected_version_bg"
+    android:layout_marginTop="12dp"
+    android:clickable="true"
+    android:focusable="true" />
 
     </LinearLayout>
 

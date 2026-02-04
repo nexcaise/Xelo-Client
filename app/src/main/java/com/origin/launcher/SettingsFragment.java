@@ -18,6 +18,7 @@ import android.os.Looper;
 import java.util.List;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.core.content.ContextCompat;
 
 import com.origin.launcher.versions.VersionManager;
 import com.origin.launcher.versions.GameVersion;
@@ -141,17 +142,17 @@ private void onVersionSelected(GameVersion version) {
 }
 
     private void updateVersionDisplay() {
-        if (selectedVersionText == null) return;
-        
-        GameVersion current = versionManager.getSelectedVersion();
-        if (current != null) {
-            selectedVersionText.setText(current.displayName);
-            selectedVersionText.setTextColor(0xFF4CAF50);
-        } else {
-            selectedVersionText.setText("No version selected");
-            selectedVersionText.setTextColor(0xFFF44336);
-        }
+    if (selectedVersionText == null) return;
+    
+    GameVersion current = versionManager.getSelectedVersion();
+    if (current != null) {
+        selectedVersionText.setText(current.displayName);
+        selectedVersionText.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary));
+    } else {
+        selectedVersionText.setText("No version selected");
+        selectedVersionText.setTextColor(ContextCompat.getColor(requireContext(), R.color.onSurfaceVariant));
     }
+}
     
     private void setupButtonListeners() {
         // Add themes button listener - simple fragment replacement

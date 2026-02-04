@@ -10,12 +10,12 @@ import com.origin.launcher.R;
 import com.origin.launcher.versions.GameVersion;
 import java.util.ArrayList;
 import java.util.List;
+import androidx.core.content.ContextCompat;
 
 public class VersionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     
     private List<GameVersion> versions = new ArrayList<>();
     private OnVersionSelectedListener listener;
-    private int selectedPosition = RecyclerView.NO_POSITION;
     
     public interface OnVersionSelectedListener {
         void onVersionSelected(GameVersion version);
@@ -24,19 +24,6 @@ public class VersionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public VersionAdapter(List<GameVersion> versions, OnVersionSelectedListener listener) {
         this.versions = new ArrayList<>(versions);
         this.listener = listener;
-    }
-    
-    public void setSelectedPosition(int position) {
-        int prevPosition = selectedPosition;
-        selectedPosition = position;
-        if (prevPosition != RecyclerView.NO_POSITION) {
-            notifyItemChanged(prevPosition);
-        }
-        notifyItemChanged(selectedPosition);
-    }
-    
-    public int getSelectedPosition() {
-        return selectedPosition;
     }
     
     @Override
@@ -59,18 +46,10 @@ public class VersionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         versionHolder.tvVersionName.setText(version.displayName);
         versionHolder.tvPackageName.setText(version.packageName);
         
-        if (position == selectedPosition) {
-            versionHolder.itemView.setBackgroundColor(0xFF4CAF50);
-            versionHolder.tvVersionName.setTextColor(0xFFFFFFFF);
-            versionHolder.tvPackageName.setTextColor(0xFFFFFFFF);
-        } else {
-            versionHolder.itemView.setBackgroundColor(0x00000000);
-            versionHolder.tvVersionName.setTextColor(0xFF000000);
-            versionHolder.tvPackageName.setTextColor(0xFF666666);
-        }
+        versionHolder.tvVersionName.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.primary));
+        versionHolder.tvPackageName.setTextColor(ContextCompat.getColor(parent.getContext(), R.color.primary));
         
         holder.itemView.setOnClickListener(v -> {
-            setSelectedPosition(position);
             if (listener != null) {
                 listener.onVersionSelected(version);
             }
