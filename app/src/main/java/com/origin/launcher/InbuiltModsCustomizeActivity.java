@@ -248,7 +248,6 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
     resetAll(grid);
     adapter.notifyDataSetChanged();
     
-    View bottomButtons = findViewById(R.id.bottom_buttons_container);
     float panelW = adapterContainer.getWidth();
     int duration = 200;
     
