@@ -39,22 +39,25 @@ public class VersionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
     
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        VersionViewHolder versionHolder = (VersionViewHolder) holder;
-        GameVersion version = versions.get(position);
-        
-        versionHolder.tvVersionName.setText(version.displayName);
-        versionHolder.tvPackageName.setText(version.packageName);
-        
-        versionHolder.tvVersionName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
-        versionHolder.tvPackageName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
-        
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onVersionSelected(version);
-            }
-        });
-    }
+public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    VersionViewHolder versionHolder = (VersionViewHolder) holder;
+    GameVersion version = versions.get(position);
+    
+    versionHolder.tvVersionName.setText(version.displayName);
+    versionHolder.tvPackageName.setText(version.packageName);
+    
+    versionHolder.tvVersionName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
+    versionHolder.tvPackageName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
+    
+    holder.itemView.setClickable(false);
+    holder.itemView.setFocusable(false);
+    
+    holder.itemView.setOnClickListener(v -> {
+        if (listener != null) {
+            listener.onVersionSelected(version);
+        }
+    });
+}
     
     @Override
     public int getItemCount() {
