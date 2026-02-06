@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:paddingTop="32dp"
@@ -53,9 +54,8 @@
             android:id="@+id/recycler_versions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             android:paddingBottom="16dp"
+            android:clipToPadding="false"
             android:overScrollMode="never"/>
     </LinearLayout>
 </FrameLayout>
