@@ -251,13 +251,11 @@ bottomButtons.animate().translationX(-slide).setDuration(duration).start();
     float panelW = adapterContainer.getWidth();
     int duration = 200;
     
-    if (isAdapterVisible) {
-        isAdapterVisible = false;
-        adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
-            adapterContainer.setVisibility(View.GONE);
-        }).start();
-        bottomButtons.animate().translationX(0f).setDuration(duration).start();
-    }
+    isAdapterVisible = false;
+    adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
+        adapterContainer.setVisibility(View.GONE);
+    }).start();
+    bottomButtons.animate().translationX(0f).setDuration(duration).start();
 });
 
         doneButton.setOnClickListener(v -> {

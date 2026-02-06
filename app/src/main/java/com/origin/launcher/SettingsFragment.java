@@ -115,11 +115,7 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
 
 private void showVersionDialog() {
     if (versionDialog != null && versionDialog.isShowing()) {
-        View rootView = versionDialog.findViewById(R.id.header_container);
-        DynamicAnim.animateDialogDismiss(rootView, () -> {
-            versionDialog.dismiss();
-            showVersionDialog();
-        });
+        dismissVersionDialog();
         return;
     }
     
@@ -127,7 +123,9 @@ private void showVersionDialog() {
     RecyclerView recyclerView = dialogView.findViewById(R.id.recycler_versions);
     
     recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-    VersionAdapter dialogAdapter = new VersionAdapter(versionManager.getInstalledVersions(), this::onVersionSelected);
+    recyclerView.setItemAnimator(null);
+    
+    VersionAdapter dialogAdapter = new VersionAdapter(versionManager.getInstalledVersions(), version -> onVersionSelected(version));
     recyclerView.setAdapter(dialogAdapter);
     
     ImageButton backButton = dialogView.findViewById(R.id.back_button);
@@ -141,7 +139,6 @@ private void showVersionDialog() {
     versionDialog.setOnShowListener(dialogInterface -> {
         View rootView = dialogView.findViewById(R.id.header_container);
         DynamicAnim.animateDialogShow(rootView);
-        DynamicAnim.staggerRecyclerChildren(recyclerView);
     });
     
     versionDialog.show();
@@ -149,11 +146,8 @@ private void showVersionDialog() {
 
 private void dismissVersionDialog() {
     if (versionDialog != null && versionDialog.isShowing()) {
-        View rootView = versionDialog.findViewById(R.id.header_container);
-        DynamicAnim.animateDialogDismiss(rootView, () -> {
-            versionDialog.dismiss();
-            versionDialog = null;
-        });
+        versionDialog.dismiss();
+        versionDialog = null;
     }
 }
 
