@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.card.MaterialCardView;
 import com.origin.launcher.R;
 import com.origin.launcher.versions.GameVersion;
 import java.util.ArrayList;
@@ -39,25 +40,22 @@ public class VersionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
     
     @Override
-public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-    VersionViewHolder versionHolder = (VersionViewHolder) holder;
-    GameVersion version = versions.get(position);
-    
-    versionHolder.tvVersionName.setText(version.displayName);
-    versionHolder.tvPackageName.setText(version.packageName);
-    
-    versionHolder.tvVersionName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
-    versionHolder.tvPackageName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
-    
-    holder.itemView.setClickable(false);
-    holder.itemView.setFocusable(false);
-    
-    holder.itemView.setOnClickListener(v -> {
-        if (listener != null) {
-            listener.onVersionSelected(version);
-        }
-    });
-}
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        VersionViewHolder versionHolder = (VersionViewHolder) holder;
+        GameVersion version = versions.get(position);
+        
+        versionHolder.tvVersionName.setText(version.displayName);
+        versionHolder.tvPackageName.setText(version.packageName);
+        
+        versionHolder.tvVersionName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
+        versionHolder.tvPackageName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
+        
+        versionHolder.cardView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onVersionSelected(version);
+            }
+        });
+    }
     
     @Override
     public int getItemCount() {
@@ -72,11 +70,13 @@ public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int positi
     static class VersionViewHolder extends RecyclerView.ViewHolder {
         TextView tvVersionName;
         TextView tvPackageName;
+        MaterialCardView cardView;
         
         VersionViewHolder(@NonNull View itemView) {
             super(itemView);
             tvVersionName = itemView.findViewById(R.id.tv_version_name_item);
             tvPackageName = itemView.findViewById(R.id.tv_package_name);
+            cardView = itemView.findViewById(R.id.card_version);
         }
     }
 }
