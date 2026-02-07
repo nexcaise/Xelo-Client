@@ -151,7 +151,8 @@ private void dismissVersionDialog() {
     }
 }
 
-private void onVersionSelected(GameVersion version) {
+@Override
+public void onVersionSelected(GameVersion version) {
     versionManager.selectVersion(version);
     updateVersionDisplay();
     dismissVersionDialog();
