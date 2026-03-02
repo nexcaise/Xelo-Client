@@ -61,8 +61,8 @@ public abstract class BaseOverlayButton {
     public void tick() {}
 
     public void show(int startX, int startY) {
-        if (isShowing) return;
-        handler.postDelayed(() -> showInternal(startX, startY), 500);
+    if (isShowing) return;
+    handler.post(() -> showInternal(startX, startY));
     }
 
     private void showInternal(int startX, int startY) {
