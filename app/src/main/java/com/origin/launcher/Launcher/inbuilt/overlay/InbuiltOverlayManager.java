@@ -182,8 +182,8 @@ public class InbuiltOverlayManager {
             if (modId.equals(ModIds.TOGGLE_HUD) && overlay instanceof ToggleHudOverlay) { toRemove = overlay; break; }
             if (modId.equals(ModIds.AUTO_SPRINT) && overlay instanceof AutoSprintOverlay) { toRemove = overlay; break; }
             if (modId.equals(ModIds.ZOOM) && overlay instanceof ZoomOverlay) { zoomOverlay = null; toRemove = overlay; break; }
-            if (modId.equals(ModIds.FPS_DISPLAY) && overlay instanceof FpsDisplayOverlay) { fpsDisplayOverlay = null; toRemove = overlay; break; }
-            if (modId.equals(ModIds.CPS_DISPLAY) && overlay instanceof CpsDisplayOverlay) { cpsDisplayOverlay = null; toRemove = overlay; break; }
+            if (modId.equals(ModIds.FPS_DISPLAY)) { fpsDisplayOverlay = null; toRemove = overlay; break; }
+if (modId.equals(ModIds.CPS_DISPLAY)) { cpsDisplayOverlay = null; toRemove = overlay; break; }
         }
         if (toRemove != null) {
             toRemove.hide();
