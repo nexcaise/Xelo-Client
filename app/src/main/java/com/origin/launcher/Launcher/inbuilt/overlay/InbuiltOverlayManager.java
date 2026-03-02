@@ -151,7 +151,6 @@ public class InbuiltOverlayManager {
             overlay.hide();
         }
         overlays.clear();
-        instance = null;
     }
 
     public void tick() {

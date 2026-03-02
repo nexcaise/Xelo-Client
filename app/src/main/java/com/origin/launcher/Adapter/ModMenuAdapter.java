@@ -55,6 +55,7 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
             if (overlayManager != null) {
                 overlayManager.toggleMod(entry.modId);
             }
+            holder.modSwitch.setChecked(modManager.isModAdded(entry.modId));
         });
     }
 

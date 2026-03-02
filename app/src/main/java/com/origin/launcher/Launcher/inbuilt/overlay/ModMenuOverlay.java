@@ -1,6 +1,7 @@
 package com.origin.launcher.Launcher.inbuilt.overlay;
 
 import android.app.Activity;
+import android.widget.ImageButton;
 import com.origin.launcher.ModMenuDialog;
 import com.origin.launcher.R;
 
@@ -20,6 +21,11 @@ public class ModMenuOverlay extends BaseOverlayButton {
     @Override
     protected int getIconResource() {
         return R.mipmap.ic_launcher;
+    }
+
+    @Override
+    protected void onOverlayViewCreated(ImageButton btn) {
+        btn.setBackgroundResource(R.drawable.bg_mod_menu_button);
     }
 
     @Override

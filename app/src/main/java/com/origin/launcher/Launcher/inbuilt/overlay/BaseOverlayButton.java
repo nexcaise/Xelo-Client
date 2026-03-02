@@ -75,6 +75,7 @@ public abstract class BaseOverlayButton {
             int buttonSize = getButtonSizePx();
             btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
             btn.setAlpha(getButtonAlpha());
+            onOverlayViewCreated(btn);
 
             wmParams = new WindowManager.LayoutParams(
                     buttonSize,
@@ -111,6 +112,7 @@ public abstract class BaseOverlayButton {
         int buttonSize = getButtonSizePx();
         btn.setScaleType(ImageButton.ScaleType.FIT_CENTER);
         btn.setAlpha(getButtonAlpha());
+        onOverlayViewCreated(btn);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 buttonSize,
@@ -265,5 +267,6 @@ public abstract class BaseOverlayButton {
     }
 
     protected abstract int getIconResource();
+    protected void onOverlayViewCreated(ImageButton btn) {}
     protected abstract void onButtonClick();
 }
