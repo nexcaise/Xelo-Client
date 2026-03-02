@@ -42,7 +42,6 @@ public class ModMenuDialog {
         ImageView btnWrench = dialog.findViewById(R.id.btn_wrench);
 
         btnBack.setOnClickListener(v -> {
-            InbuiltModManager.getInstance(activity).saveMods();
             dialog.dismiss();
         });
 
