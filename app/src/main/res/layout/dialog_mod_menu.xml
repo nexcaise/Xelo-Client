@@ -25,7 +25,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/ic_launcher"
+            android:src="@mipmap/ic_launcher"
             android:layout_marginEnd="12dp" />
 
         <View
@@ -39,7 +39,7 @@
             android:layout_height="24dp"
             android:src="@drawable/wrench"
             android:layout_marginStart="8dp"
-            android:contentDescription="Settings" />
+            android:contentDescription="Customize" />
 
     </LinearLayout>
 
