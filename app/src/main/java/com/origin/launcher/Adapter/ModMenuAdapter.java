@@ -39,11 +39,11 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
 
     private int getIconForMod(String modId) {
         switch (modId) {
-            case ModIds.QUICK_DROP: return R.drawable.ic_drop;
-            case ModIds.CAMERA_PERSPECTIVE: return R.drawable.ic_camera;
-            case ModIds.TOGGLE_HUD: return R.drawable.ic_hud;
-            case ModIds.AUTO_SPRINT: return R.drawable.ic_sprint;
-            case ModIds.ZOOM: return R.drawable.ic_zoom;
+            case ModIds.QUICK_DROP: return R.drawable.q_unpress;
+            case ModIds.CAMERA_PERSPECTIVE: return R.drawable.f5_unpress;
+            case ModIds.TOGGLE_HUD: return R.drawable.f1_unpress;
+            case ModIds.AUTO_SPRINT: return R.drawable.as_unpress;
+            case ModIds.ZOOM: return R.drawable.zoom_unpress;
             case ModIds.FPS_DISPLAY: return R.drawable.ic_fps;
             case ModIds.CPS_DISPLAY: return R.drawable.ic_cps;
             default: return R.mipmap.ic_launcher;
