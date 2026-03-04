@@ -22,7 +22,7 @@ import java.util.List;
 public class InbuiltOverlayManager {
     private static volatile InbuiltOverlayManager instance;
     private final Activity activity;
-    private final List<BaseOverlayButton> overlays = new ArrayList<>();
+    private final List<Object> overlays = new ArrayList<>();
     private final InbuiltModManager modManager;
     private static final int SPACING = 70;
     private static final int START_X = 50;
@@ -165,17 +165,25 @@ public class InbuiltOverlayManager {
     }
 
     public void hideAllOverlays() {
-        for (BaseOverlayButton overlay : new ArrayList<>(overlays)) {
-            overlay.hide();
+    for (Object overlay : new ArrayList<>(overlays)) {
+        if (overlay instanceof BaseOverlayButton) {
+            ((BaseOverlayButton) overlay).hide();
+        } else {
+            try {
+                overlay.getClass().getMethod("hide").invoke(overlay);
+            } catch (Exception ignored) {}
         }
-        overlays.clear();
     }
+    overlays.clear();
+}
 
     public void tick() {
-        for (BaseOverlayButton overlay : overlays) {
-            overlay.tick();
+    for (Object overlay : overlays) {
+        if (overlay instanceof BaseOverlayButton) {
+            ((BaseOverlayButton) overlay).tick();
         }
     }
+}
 
     public void toggleMod(String modId) {
         if (modManager.isModAdded(modId)) {
