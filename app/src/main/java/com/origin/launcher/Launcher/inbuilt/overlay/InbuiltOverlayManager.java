@@ -99,15 +99,20 @@ public class InbuiltOverlayManager {
     }
 
     public void showEnabledOverlays() {
-        for (BaseOverlayButton overlay : new ArrayList<>(overlays)) {
-            overlay.hide();
+        for (Object overlay : new ArrayList<>(overlays)) {
+            if (overlay instanceof BaseOverlayButton) {
+                ((BaseOverlayButton) overlay).hide();
+            } else {
+                try {
+                    overlay.getClass().getMethod("hide").invoke(overlay);
+                } catch (Exception ignored) {}
+            }
         }
         overlays.clear();
         int nextY = 150;
 
         if (modMenuOverlay == null) modMenuOverlay = new ModMenuOverlay(activity);
-        int[] menuPos =
-        getStartPosition("mod_menu", START_X, 10);
+        int[] menuPos = getStartPosition("mod_menu", START_X, 10);
         modMenuOverlay.show(menuPos[0], menuPos[1]);
         overlays.add(modMenuOverlay);
         nextY += SPACING;
@@ -165,25 +170,25 @@ public class InbuiltOverlayManager {
     }
 
     public void hideAllOverlays() {
-    for (Object overlay : new ArrayList<>(overlays)) {
-        if (overlay instanceof BaseOverlayButton) {
-            ((BaseOverlayButton) overlay).hide();
-        } else {
-            try {
-                overlay.getClass().getMethod("hide").invoke(overlay);
-            } catch (Exception ignored) {}
+        for (Object overlay : new ArrayList<>(overlays)) {
+            if (overlay instanceof BaseOverlayButton) {
+                ((BaseOverlayButton) overlay).hide();
+            } else {
+                try {
+                    overlay.getClass().getMethod("hide").invoke(overlay);
+                } catch (Exception ignored) {}
+            }
         }
+        overlays.clear();
     }
-    overlays.clear();
-}
 
     public void tick() {
-    for (Object overlay : overlays) {
-        if (overlay instanceof BaseOverlayButton) {
-            ((BaseOverlayButton) overlay).tick();
+        for (Object overlay : overlays) {
+            if (overlay instanceof BaseOverlayButton) {
+                ((BaseOverlayButton) overlay).tick();
+            }
         }
     }
-}
 
     public void toggleMod(String modId) {
         if (modManager.isModAdded(modId)) {
