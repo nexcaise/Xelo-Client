@@ -41,8 +41,8 @@ public class ModMenuDialog {
         dialog.setContentView(R.layout.dialog_mod_menu);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setLayout(
-                (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.70),
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.75),
+                (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.65)
         );
 
         ImageView btnBack = dialog.findViewById(R.id.btn_back);
