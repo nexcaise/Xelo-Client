@@ -94,7 +94,7 @@
             app:tabGravity="center"
             app:tabIndicatorFullWidth="true"
             app:tabIndicatorHeight="4dp"
-            app:tabIndicatorAnimationMode="stretch"
+            app:tabIndicatorAnimationMode="linear"
             app:tabTextColor="@color/onSurface"
             app:tabSelectedTextColor="@color/primary"
             app:tabIndicatorColor="@color/primary"
