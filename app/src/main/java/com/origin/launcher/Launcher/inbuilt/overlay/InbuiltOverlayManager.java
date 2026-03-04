@@ -152,12 +152,14 @@ public class InbuiltOverlayManager {
             int[] pos = getStartPosition(ModIds.FPS_DISPLAY, START_X, nextY);
             if (fpsDisplayOverlay == null) fpsDisplayOverlay = new FpsDisplayOverlay(activity);
             fpsDisplayOverlay.show(pos[0], pos[1]);
+            overlays.add(fpsDisplayOverlay);
             nextY += SPACING;
         }
         if (modManager.isModAdded(ModIds.CPS_DISPLAY)) {
             int[] pos = getStartPosition(ModIds.CPS_DISPLAY, START_X, nextY);
             if (cpsDisplayOverlay == null) cpsDisplayOverlay = new CpsDisplayOverlay(activity);
             cpsDisplayOverlay.show(pos[0], pos[1]);
+            overlays.add(cpsDisplayOverlay);
             nextY += SPACING;
         }
     }

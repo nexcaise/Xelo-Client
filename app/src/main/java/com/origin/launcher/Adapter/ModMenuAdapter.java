@@ -41,8 +41,8 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_mod_toggle_card, parent, false);
 
-        int horizontalMargin = (int) (4 * parent.getResources().getDisplayMetrics().density);
-        int verticalMargin = (int) (2 * parent.getResources().getDisplayMetrics().density);
+        int horizontalMargin = (int) (2 * parent.getResources().getDisplayMetrics().density);
+        int verticalMargin = (int) (1 * parent.getResources().getDisplayMetrics().density);
 
         RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
