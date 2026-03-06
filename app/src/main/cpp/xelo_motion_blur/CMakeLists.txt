@@ -11,20 +11,12 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--gc-sections,--
 
 set(SOURCES
     src/main.cpp
-    src/ImGui/imgui.cpp
-    src/ImGui/imgui_draw.cpp
-    src/ImGui/imgui_tables.cpp
-    src/ImGui/imgui_widgets.cpp
-    src/ImGui/backends/imgui_impl_opengl3.cpp
-    src/ImGui/backends/imgui_impl_android.cpp
 )
 
 add_library(MotionBlur SHARED ${SOURCES})
 
 target_include_directories(MotionBlur PRIVATE
     src
-    src/ImGui
-    src/ImGui/backends
     ${CMAKE_CURRENT_SOURCE_DIR}/../Preloader/src
 )
 
