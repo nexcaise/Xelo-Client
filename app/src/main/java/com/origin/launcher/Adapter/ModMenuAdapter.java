@@ -1,5 +1,7 @@
 package com.origin.launcher.Adapter;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,10 +10,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.overlay.InbuiltOverlayManager;
 import com.origin.launcher.R;
+import com.origin.launcher.ThemeManager;
 
 import java.util.List;
 
@@ -58,20 +61,37 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ModEntry entry = mods.get(position);
         holder.modName.setText(entry.modName);
+
+        boolean isChecked = modManager.isModAdded(entry.modId);
         holder.modSwitch.setOnCheckedChangeListener(null);
-        holder.modSwitch.setChecked(modManager.isModAdded(entry.modId));
-        holder.modSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
+        holder.modSwitch.setChecked(isChecked);
+        applySwitchTheme(holder.modSwitch, isChecked);
+
+        holder.modSwitch.setOnCheckedChangeListener((buttonView, checked) -> {
+            if (checked) {
                 modManager.addMod(entry.modId);
             } else {
                 modManager.removeMod(entry.modId);
             }
+            applySwitchTheme(holder.modSwitch, checked);
             InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
             if (overlayManager != null) {
                 overlayManager.showEnabledOverlays();
             }
             holder.modSwitch.setChecked(modManager.isModAdded(entry.modId));
         });
+    }
+
+    private void applySwitchTheme(MaterialSwitch sw, boolean isChecked) {
+        int primaryColor = ThemeManager.getInstance().getColor("primary");
+        int surfaceColor = ThemeManager.getInstance().getColor("surface");
+        sw.setThumbTintList(ColorStateList.valueOf(isChecked ? primaryColor : surfaceColor));
+        sw.setTrackTintList(ColorStateList.valueOf(isChecked ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(surfaceColor, 0.5f)));
+    }
+
+    private int adjustAlpha(int color, float factor) {
+        int alpha = Math.round(Color.alpha(color) * factor);
+        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
     }
 
     @Override
@@ -81,7 +101,7 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView modName;
-        SwitchMaterial modSwitch;
+        MaterialSwitch modSwitch;
 
         ViewHolder(View view) {
             super(view);
