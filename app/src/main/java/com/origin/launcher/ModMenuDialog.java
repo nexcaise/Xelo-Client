@@ -2,10 +2,13 @@ package com.origin.launcher;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -36,6 +39,11 @@ public class ModMenuDialog {
         this.activity = activity;
     }
 
+    private void animatePop(View view) {
+        Animation anim = AnimationUtils.loadAnimation(activity, R.anim.pop_up);
+        view.startAnimation(anim);
+    }
+
     public void show() {
         dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -49,8 +57,20 @@ public class ModMenuDialog {
         ImageView btnBack = dialog.findViewById(R.id.btn_back);
         ImageView btnWrench = dialog.findViewById(R.id.btn_wrench);
 
-        btnBack.setOnClickListener(v -> dialog.dismiss());
-        btnWrench.setOnClickListener(v -> {});
+        btnBack.setOnClickListener(v -> {
+            animatePop(btnBack);
+            btnBack.postDelayed(() -> dialog.dismiss(), 150);
+        });
+
+        btnWrench.setOnClickListener(v -> {
+            animatePop(btnWrench);
+            btnWrench.postDelayed(() -> {
+                dialog.dismiss();
+                Intent intent = new Intent(activity, InbuiltModsCustomizeActivity.class);
+                intent.putExtra("show_background", false);
+                activity.startActivity(intent);
+            }, 150);
+        });
 
         modManager = InbuiltModManager.getInstance(activity);
 
@@ -60,7 +80,6 @@ public class ModMenuDialog {
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.TOGGLE_HUD, activity.getString(R.string.inbuilt_mod_hud)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.AUTO_SPRINT, activity.getString(R.string.inbuilt_mod_autosprint)));
         utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.ZOOM, activity.getString(R.string.inbuilt_mod_zoom)));
-        //utilityMods.add(new ModMenuAdapter.ModEntry(ModIds.MOTION_BLUR, activity.getString(R.string.inbuilt_mod_motion_blur)));
 
         statsMods = new ArrayList<>();
         statsMods.add(new ModMenuAdapter.ModEntry(ModIds.FPS_DISPLAY, activity.getString(R.string.inbuilt_mod_fps_display)));
@@ -83,6 +102,7 @@ public class ModMenuDialog {
         for (int i = 0; i < tabs.length; i++) {
             final int index = i;
             tabs[i].setOnClickListener(v -> {
+                animatePop(tabs[index]);
                 for (LinearLayout t : tabs) {
                     t.setSelected(false);
                     ((TextView) t.getChildAt(1)).setTextColor(
@@ -94,6 +114,10 @@ public class ModMenuDialog {
                 recyclerView.setAdapter(new ModMenuAdapter(tabData.get(index), modManager));
             });
         }
+
+        tabUtility.setSelected(true);
+        ((TextView) tabUtility.getChildAt(1)).setTextColor(
+            activity.getResources().getColor(R.color.primary, activity.getTheme()));
 
         dialog.show();
     }

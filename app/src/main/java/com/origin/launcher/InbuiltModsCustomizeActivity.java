@@ -170,15 +170,21 @@ adapterContainer.layout(0, 0, adapterContainer.getMeasuredWidth(), adapterContai
             }
         });
 
+        boolean showBackground = getIntent().getBooleanExtra("show_background", true);
         View rootTouch = findViewById(R.id.customize_background);
-        rootTouch.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                lastSelectedButton = null;
-                lastSelectedId = null;
-                lockSwitch.setChecked(false);
-            }
-            return false;
-        });
+        if (showBackground) {
+            rootTouch.setVisibility(View.VISIBLE);
+            rootTouch.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    lastSelectedButton = null;
+                    lastSelectedId = null;
+                    lockSwitch.setChecked(false);
+                }
+                return false;
+            });
+        } else {
+            rootTouch.setVisibility(View.GONE);
+        }
 
         InbuiltModSizeStore.getInstance().init(getApplicationContext());
 
@@ -505,21 +511,20 @@ private void findAndColorTextViews(View view, int color) {
                     float newX = event.getRawX() - dX;
                     float newY = event.getRawY() - dY;
 
-                    View bg = findViewById(R.id.customize_background);
                     float left = 0f;
-                    float top = 0f;
-                    float right = bg.getWidth() - view.getWidth();
-                    float bottom = bg.getHeight() - view.getHeight();
+    float top = 0f;
+    float right = grid.getWidth() - view.getWidth();
+    float bottom = grid.getHeight() - view.getHeight();
 
-                    if (newX < left) newX = left;
-                    if (newX > right) newX = right;
-                    if (newY < top) newY = top;
-                    if (newY > bottom) newY = bottom;
+    if (newX < left) newX = left;
+    if (newX > right) newX = right;
+    if (newY < top) newY = top;
+    if (newY > bottom) newY = bottom;
 
-                    view.setX(newX);
-                    view.setY(newY);
-                    moved = true;
-                    return true;
+    view.setX(newX);
+    view.setY(newY);
+    moved = true;
+    return true;
                 case MotionEvent.ACTION_UP:
                     if (!moved) {
                         view.performClick();
