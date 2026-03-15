@@ -94,13 +94,13 @@ public class InbuiltModManager {
                 false,
                 addedMods.contains(ModIds.THIRD_PERSON_NAMETAG)
         ));
-        mods.add(new InbuiltMod(
+        /*mods.add(new InbuiltMod(
             ModIds.MOTION_BLUR,
             context.getString(R.string.inbuilt_mod_motion_blur),
             context.getString(R.string.inbuilt_mod_motion_blur_desc),
             false,
             addedMods.contains(ModIds.MOTION_BLUR)
-        ));
+        ));*/
         return mods;
     }
 
@@ -131,7 +131,7 @@ public class InbuiltModManager {
         if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
             NameTagMod.patch();
         }
-        if (modId.equals(ModIds.MOTION_BLUR)) MotionBlurMod.enable();
+        //if (modId.equals(ModIds.MOTION_BLUR)) MotionBlurMod.enable();
         savePrefs();
     }
 
@@ -140,7 +140,7 @@ public class InbuiltModManager {
         if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
             NameTagMod.unpatch();
         }
-        if (modId.equals(ModIds.MOTION_BLUR)) MotionBlurMod.disable();
+        //if (modId.equals(ModIds.MOTION_BLUR)) MotionBlurMod.disable();
         savePrefs();
     }
 

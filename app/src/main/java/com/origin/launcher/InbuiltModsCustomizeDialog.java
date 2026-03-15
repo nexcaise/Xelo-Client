@@ -57,11 +57,13 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     private RecyclerView adapterRecyclerView;
     private InbuiltCustomizeAdapter adapter;
     private boolean isAdapterVisible = false;
+    private final boolean showBackground;
     private FrameLayout adapterContainer;
     private TextView emptyAdapterText;
 
-    public InbuiltModsCustomizeDialog(@NonNull Context context) {
-        super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+    public InbuiltModsCustomizeDialog(@NonNull Context context, boolean showBackground) {
+    super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+    this.showBackground = showBackground;
     }
 
     @Override
@@ -163,7 +165,10 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         });
 
         View rootTouch = findViewById(R.id.customize_background);
-        rootTouch.setOnTouchListener((v, event) -> {
+            if (!showBackground) {
+            rootTouch.setBackground(null);
+            }
+            rootTouch.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 lastSelectedButton = null;
                 lastSelectedId = null;
