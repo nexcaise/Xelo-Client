@@ -54,6 +54,11 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
         params.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin);
         view.setLayoutParams(params);
 
+        MaterialSwitch sw = view.findViewById(R.id.mod_switch);
+        sw.setTextOn("");
+        sw.setTextOff("");
+        sw.setShowText(false);
+
         return new ViewHolder(view);
     }
 
@@ -84,9 +89,9 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
 
     private void applySwitchTheme(MaterialSwitch sw, boolean isChecked) {
         int primaryColor = ThemeManager.getInstance().getColor("primary");
-        int surfaceColor = ThemeManager.getInstance().getColor("surface");
-        sw.setThumbTintList(ColorStateList.valueOf(isChecked ? primaryColor : surfaceColor));
-        sw.setTrackTintList(ColorStateList.valueOf(isChecked ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(surfaceColor, 0.5f)));
+        int uncheckedColor = Color.parseColor("#888888");
+        sw.setThumbTintList(ColorStateList.valueOf(isChecked ? primaryColor : uncheckedColor));
+        sw.setTrackTintList(ColorStateList.valueOf(isChecked ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(uncheckedColor, 0.5f)));
     }
 
     private int adjustAlpha(int color, float factor) {
