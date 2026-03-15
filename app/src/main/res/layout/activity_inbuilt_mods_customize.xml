@@ -22,9 +22,12 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
         android:layout_margin="16dp"
-        android:checked="false"
+            android:checked="false"
         android:text="Lock"
-        android:clickable="true"
+            android:textOn=""
+            android:textOff=""
+        android:showText="false"
+            android:clickable="true"
         android:focusable="true" />
 
     <LinearLayout

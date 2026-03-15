@@ -26,8 +26,9 @@
 
         <com.google.android.material.materialswitch.MaterialSwitch
     android:id="@+id/mod_switch"
+    style="@style/Widget.Material3.CompoundButton.MaterialSwitch"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content" 
+    android:layout_height="wrap_content"
     android:textOn=""
     android:textOff=""
     android:showText="false" />

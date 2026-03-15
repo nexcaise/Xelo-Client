@@ -80,6 +80,9 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         Button customizeButton = findViewById(R.id.opacity_button);
 
         lockSwitch = findViewById(R.id.lock_button);
+        lockSwitch.setTextOn("");
+        lockSwitch.setTextOff("");
+        lockSwitch.setShowText(false);
         FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
         View bottomButtons = findViewById(R.id.bottom_buttons_container);
 

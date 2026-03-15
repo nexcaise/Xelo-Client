@@ -41,25 +41,29 @@ public class ModMenuAdapter extends RecyclerView.Adapter<ModMenuAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_mod_toggle_card, parent, false);
+    android.content.Context themedContext = new androidx.appcompat.view.ContextThemeWrapper(
+        parent.getContext(),
+        com.google.android.material.R.style.Theme_Material3_Dark_NoActionBar
+    );
+    View view = LayoutInflater.from(themedContext)
+            .inflate(R.layout.item_mod_toggle_card, parent, false);
 
-        int horizontalMargin = (int) (2 * parent.getResources().getDisplayMetrics().density);
-        int verticalMargin = (int) (1 * parent.getResources().getDisplayMetrics().density);
+    int horizontalMargin = (int) (2 * parent.getResources().getDisplayMetrics().density);
+    int verticalMargin = (int) (1 * parent.getResources().getDisplayMetrics().density);
 
-        RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        params.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin);
-        view.setLayoutParams(params);
+    RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+    );
+    params.setMargins(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin);
+    view.setLayoutParams(params);
 
-        MaterialSwitch sw = view.findViewById(R.id.mod_switch);
-        sw.setTextOn("");
-        sw.setTextOff("");
-        sw.setShowText(false);
+    MaterialSwitch sw = view.findViewById(R.id.mod_switch);
+    sw.setTextOn("");
+    sw.setTextOff("");
+    sw.setShowText(false);
 
-        return new ViewHolder(view);
+    return new ViewHolder(view);
     }
 
     @Override
