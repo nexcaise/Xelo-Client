@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InbuiltModsCustomizeDialog extends Dialog {
+public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomizeAdapter.Callback {
 
     private View lastSelectedButton;
     private MaterialSwitch lockSwitch;
@@ -103,7 +103,7 @@ public class InbuiltModsCustomizeDialog extends Dialog {
         doneButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
 
         adapter = new InbuiltCustomizeAdapter(
-            getContext(),
+            this,
             MIN_SIZE_DP, MAX_SIZE_DP,
             MIN_OPACITY, MAX_OPACITY,
             SEEKBAR_MAX
@@ -297,6 +297,128 @@ public class InbuiltModsCustomizeDialog extends Dialog {
         }
 
         return list;
+    }
+
+    @Override
+    public int getSizeDp(String id) {
+        return clampSize(modSizes.getOrDefault(id, DEFAULT_SIZE_DP));
+    }
+
+    @Override
+    public int getOpacity(String id) {
+        return clampOpacity(modOpacity.getOrDefault(id, DEFAULT_OPACITY));
+    }
+
+    @Override
+    public void onSizeChanged(String id, int sizeDp) {
+        int clamped = clampSize(sizeDp);
+        modSizes.put(id, clamped);
+        View btn = modButtons.get(id);
+        if (btn != null) {
+            btn.setMinimumWidth(0);
+            btn.setMinimumHeight(0);
+            btn.setPadding(0, 0, 0, 0);
+            btn.setPaddingRelative(0, 0, 0, 0);
+            int px = dpToPx(clamped);
+            FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) btn.getLayoutParams();
+            flp.width = px;
+            flp.height = px;
+            flp.leftMargin = 0;
+            flp.topMargin = 0;
+            flp.rightMargin = 0;
+            flp.bottomMargin = 0;
+            btn.setLayoutParams(flp);
+            btn.requestLayout();
+            btn.invalidate();
+            if (btn instanceof ImageButton) {
+                ((ImageButton) btn).setScaleType(ImageView.ScaleType.FIT_CENTER);
+            }
+        }
+    }
+
+    @Override
+    public void onOpacityChanged(String id, int opacity) {
+        int clamped = clampOpacity(opacity);
+        modOpacity.put(id, clamped);
+        View btn = modButtons.get(id);
+        if (btn != null) btn.setAlpha(clamped / 100f);
+    }
+
+    @Override
+    public int getZoomLevel(String id) {
+        return modZoomLevels.getOrDefault(id, 50);
+    }
+
+    @Override
+    public void onZoomChanged(String id, int zoomLevel) {
+        modZoomLevels.put(id, zoomLevel);
+    }
+
+    @Override
+    public void onItemClicked(String id) {
+        View btn = modButtons.get(id);
+        if (btn != null) btn.performClick();
+    }
+
+    @Override
+    public String getKeyName(String id) {
+        int keybind = modZoomKeybinds.getOrDefault(id, KeyEvent.KEYCODE_C);
+        if (keybind == KeyEvent.KEYCODE_C) return "C";
+        String label = KeyEvent.keyCodeToString(keybind);
+        return label.startsWith("KEYCODE_") ? label.substring(8) : label;
+    }
+
+    @Override
+    public void showKeybindDialog(String modId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(R.string.zoom_keybind_label);
+        builder.setMessage(R.string.zoom_keybind_press);
+        builder.setCancelable(true);
+        builder.setNegativeButton(R.string.dialog_negative_cancel, null);
+
+        AlertDialog kDialog = builder.create();
+        GradientDrawable strokeBg = new GradientDrawable();
+        strokeBg.setColor(getContext().getResources().getColor(R.color.black, null));
+        strokeBg.setStroke(dpToPx(1), getContext().getResources().getColor(R.color.white, null));
+        strokeBg.setCornerRadius(dpToPx(16));
+        kDialog.getWindow().setBackgroundDrawable(strokeBg);
+
+        kDialog.setOnKeyListener((d, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (!isKeyboardKey(keyCode)) return true;
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    kDialog.dismiss();
+                    return true;
+                }
+                modZoomKeybinds.put(modId, keyCode);
+                adapter.notifyDataSetChanged();
+                kDialog.dismiss();
+                return true;
+            }
+            return false;
+        });
+
+        kDialog.show();
+        kDialog.getWindow().getDecorView().post(() ->
+            findAndColorTextViews(kDialog.getWindow().getDecorView(),
+                getContext().getResources().getColor(R.color.white, null))
+        );
+    }
+
+    private void findAndColorTextViews(View view, int color) {
+        if (view instanceof TextView) ((TextView) view).setTextColor(color);
+        if (view instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) view;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                findAndColorTextViews(vg.getChildAt(i), color);
+            }
+        }
+    }
+
+    private boolean isKeyboardKey(int keyCode) {
+        return (keyCode >= KeyEvent.KEYCODE_A && keyCode <= KeyEvent.KEYCODE_Z) ||
+               (keyCode >= KeyEvent.KEYCODE_0 && keyCode <= KeyEvent.KEYCODE_9) ||
+               keyCode == KeyEvent.KEYCODE_SPACE || keyCode == KeyEvent.KEYCODE_ENTER;
     }
 
     private void addModButton(FrameLayout grid, int iconResId, String id) {
