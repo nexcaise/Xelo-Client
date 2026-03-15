@@ -1,0 +1,424 @@
+package com.origin.launcher;
+
+import android.app.Dialog;
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.materialswitch.MaterialSwitch;
+import com.origin.launcher.Adapter.InbuiltCustomizeAdapter;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
+import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
+import com.origin.launcher.Launcher.inbuilt.model.ModIds;
+import com.origin.launcher.R;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class InbuiltModsCustomizeDialog extends Dialog {
+
+    private View lastSelectedButton;
+    private MaterialSwitch lockSwitch;
+
+    private final Map<String, Integer> modSizes = new HashMap<>();
+    private final Map<String, Integer> modOpacity = new HashMap<>();
+    private final Map<String, View> modButtons = new HashMap<>();
+    private final Map<String, Integer> modZoomKeybinds = new HashMap<>();
+    private final Map<String, Integer> modZoomLevels = new HashMap<>();
+    private String lastSelectedId = null;
+
+    private static final int MIN_SIZE_DP = 32;
+    private static final int MAX_SIZE_DP = 96;
+    private static final int DEFAULT_SIZE_DP = 40;
+    private static final int MIN_OPACITY = 20;
+    private static final int MAX_OPACITY = 100;
+    private static final int DEFAULT_OPACITY = 100;
+    private static final int SEEKBAR_MAX = 100;
+
+    private RecyclerView adapterRecyclerView;
+    private InbuiltCustomizeAdapter adapter;
+    private boolean isAdapterVisible = false;
+    private FrameLayout adapterContainer;
+    private TextView emptyAdapterText;
+
+    public InbuiltModsCustomizeDialog(@NonNull Context context) {
+        super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_inbuilt_mods_customize);
+
+        getWindow().setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        );
+
+        Button resetButton = findViewById(R.id.reset_button);
+        Button doneButton = findViewById(R.id.done_button);
+        Button customizeButton = findViewById(R.id.opacity_button);
+
+        lockSwitch = findViewById(R.id.lock_button);
+        FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
+        View bottomButtons = findViewById(R.id.bottom_buttons_container);
+
+        customizeButton.setText("Customize");
+
+        GradientDrawable blackBg = new GradientDrawable();
+        blackBg.setShape(GradientDrawable.RECTANGLE);
+        blackBg.setColor(Color.BLACK);
+        blackBg.setCornerRadius(dpToPx(12));
+
+        resetButton.setBackground(blackBg);
+        customizeButton.setBackground(blackBg);
+        doneButton.setBackground(blackBg);
+
+        int padding8dp = dpToPx(8);
+        int padding16dp = dpToPx(16);
+        int padding24dp = dpToPx(24);
+
+        resetButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
+        customizeButton.setPadding(padding16dp, padding8dp, padding16dp, padding8dp);
+        doneButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
+
+        adapter = new InbuiltCustomizeAdapter(
+            getContext(),
+            MIN_SIZE_DP, MAX_SIZE_DP,
+            MIN_OPACITY, MAX_OPACITY,
+            SEEKBAR_MAX
+        );
+
+        adapterContainer = new FrameLayout(getContext());
+        GradientDrawable panelBg = new GradientDrawable();
+        panelBg.setShape(GradientDrawable.RECTANGLE);
+        panelBg.setColor(Color.argb(220, 0, 0, 0));
+        panelBg.setCornerRadius(dpToPx(16));
+        adapterContainer.setBackground(panelBg);
+
+        FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(
+            dpToPx(280),
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            Gravity.END
+        );
+        adapterContainer.setLayoutParams(containerParams);
+        adapterContainer.setVisibility(View.GONE);
+
+        adapterRecyclerView = new RecyclerView(getContext());
+        FrameLayout.LayoutParams recyclerParams = new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        adapterRecyclerView.setLayoutParams(recyclerParams);
+        adapterRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        adapterRecyclerView.setAdapter(adapter);
+
+        emptyAdapterText = new TextView(getContext());
+        emptyAdapterText.setText(R.string.no_mods_enabled);
+        emptyAdapterText.setTextSize(16);
+        emptyAdapterText.setTextColor(Color.WHITE);
+        emptyAdapterText.setGravity(Gravity.CENTER);
+        emptyAdapterText.setPadding(dpToPx(24), dpToPx(24), dpToPx(24), dpToPx(24));
+        FrameLayout.LayoutParams emptyParams = new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        emptyAdapterText.setLayoutParams(emptyParams);
+        emptyAdapterText.setVisibility(View.GONE);
+
+        adapterContainer.addView(adapterRecyclerView);
+        adapterContainer.addView(emptyAdapterText);
+
+        ViewGroup rootContainer = (ViewGroup) findViewById(android.R.id.content);
+        rootContainer.addView(adapterContainer);
+
+        ThemeUtils.applyThemeToSwitch(lockSwitch, getContext());
+        lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (lastSelectedId != null) {
+                InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isChecked);
+            }
+        });
+
+        View rootTouch = findViewById(R.id.customize_background);
+        rootTouch.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                lastSelectedButton = null;
+                lastSelectedId = null;
+                lockSwitch.setChecked(false);
+            }
+            return false;
+        });
+
+        InbuiltModSizeStore.getInstance().init(getContext().getApplicationContext());
+
+        addModButton(grid, R.drawable.as_unpress, ModIds.AUTO_SPRINT);
+        addModButton(grid, R.drawable.q_unpress, ModIds.QUICK_DROP);
+        addModButton(grid, R.drawable.f1_unpress, ModIds.TOGGLE_HUD);
+        addModButton(grid, R.drawable.f5_unpress, ModIds.CAMERA_PERSPECTIVE);
+        addModButton(grid, R.drawable.zoom_unpress, ModIds.ZOOM);
+
+        InbuiltModSizeStore sizeStore = InbuiltModSizeStore.getInstance();
+        for (Map.Entry<String, View> e : modButtons.entrySet()) {
+            String id = e.getKey();
+            View btn = e.getValue();
+            float sx = sizeStore.getPositionX(id);
+            float sy = sizeStore.getPositionY(id);
+            if (sx >= 0f && sy >= 0f) {
+                btn.setX(sx);
+                btn.setY(sy);
+            }
+        }
+
+        for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
+            int s = e.getValue();
+            s = clampSize(s <= 0 ? DEFAULT_SIZE_DP : s);
+            e.setValue(s);
+        }
+
+        for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
+            int o = e.getValue();
+            o = clampOpacity(o <= 0 ? DEFAULT_OPACITY : o);
+            e.setValue(o);
+        }
+
+        adapter.submitList(getEnabledMods());
+
+        customizeButton.setOnClickListener(v -> {
+            boolean show = !isAdapterVisible;
+            isAdapterVisible = show;
+
+            adapterContainer.post(() -> {
+                float panelW = adapterContainer.getWidth();
+                int duration = 200;
+
+                if (show) {
+                    boolean isEmpty = adapter.getItemCount() == 0;
+                    adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+                    emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+
+                    adapterContainer.setVisibility(View.VISIBLE);
+                    adapterContainer.setTranslationX(panelW);
+                    adapterContainer.animate().translationX(0f).setDuration(duration).start();
+
+                    float slide = panelW - dpToPx(65);
+                    bottomButtons.animate().translationX(-slide).setDuration(duration).start();
+                } else {
+                    adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
+                        adapterContainer.setVisibility(View.GONE);
+                    }).start();
+                    bottomButtons.animate().translationX(0f).setDuration(duration).start();
+                }
+            });
+        });
+
+        resetButton.setOnClickListener(v -> {
+            resetAll(grid);
+            adapter.notifyDataSetChanged();
+
+            float panelW = adapterContainer.getWidth();
+            int duration = 200;
+
+            isAdapterVisible = false;
+            adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
+                adapterContainer.setVisibility(View.GONE);
+            }).start();
+            bottomButtons.animate().translationX(0f).setDuration(duration).start();
+        });
+
+        doneButton.setOnClickListener(v -> {
+            InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
+
+            for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
+                String id = e.getKey();
+                int sizeDp = e.getValue();
+                manager.setOverlayButtonSize(id, sizeDp);
+
+                View btn = modButtons.get(id);
+                if (btn != null) {
+                    InbuiltModSizeStore.getInstance().setPositionX(id, btn.getX());
+                    InbuiltModSizeStore.getInstance().setPositionY(id, btn.getY());
+                }
+            }
+
+            for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
+                manager.setOverlayButtonOpacity(e.getKey(), e.getValue());
+            }
+
+            if (modZoomLevels.containsKey(ModIds.ZOOM)) {
+                manager.setZoomLevel(modZoomLevels.get(ModIds.ZOOM));
+            }
+
+            if (modZoomKeybinds.containsKey(ModIds.ZOOM)) {
+                manager.setZoomKeybind(modZoomKeybinds.get(ModIds.ZOOM));
+            }
+
+            dismiss();
+        });
+    }
+
+    private List<InbuiltCustomizeAdapter.Item> getEnabledMods() {
+        List<InbuiltCustomizeAdapter.Item> list = new ArrayList<>();
+        InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
+
+        if (manager.isModAdded(ModIds.AUTO_SPRINT))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.AUTO_SPRINT, R.drawable.as_unpress));
+        if (manager.isModAdded(ModIds.QUICK_DROP))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.QUICK_DROP, R.drawable.q_unpress));
+        if (manager.isModAdded(ModIds.TOGGLE_HUD))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.TOGGLE_HUD, R.drawable.f1_unpress));
+        if (manager.isModAdded(ModIds.CAMERA_PERSPECTIVE))
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.CAMERA_PERSPECTIVE, R.drawable.f5_unpress));
+        if (manager.isModAdded(ModIds.ZOOM)) {
+            list.add(new InbuiltCustomizeAdapter.Item(ModIds.ZOOM, R.drawable.zoom_unpress));
+            int savedZoom = manager.getZoomLevel();
+            int savedKeybind = manager.getZoomKeybind();
+            modZoomLevels.put(ModIds.ZOOM, savedZoom > 0 ? savedZoom : 50);
+            modZoomKeybinds.put(ModIds.ZOOM, savedKeybind > 0 ? savedKeybind : KeyEvent.KEYCODE_C);
+        }
+
+        return list;
+    }
+
+    private void addModButton(FrameLayout grid, int iconResId, String id) {
+        ImageButton btn = new ImageButton(getContext());
+        btn.setImageResource(iconResId);
+        btn.setBackgroundResource(R.drawable.bg_overlay_button);
+        btn.setPadding(0, 0, 0, 0);
+        btn.setPaddingRelative(0, 0, 0, 0);
+        btn.setMinimumWidth(0);
+        btn.setMinimumHeight(0);
+
+        InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
+        int savedSizeDp = manager.getOverlayButtonSize(id);
+        if (savedSizeDp <= 0) savedSizeDp = DEFAULT_SIZE_DP;
+        savedSizeDp = clampSize(savedSizeDp);
+
+        int savedOpacity = manager.getOverlayButtonOpacity(id);
+        if (savedOpacity <= 0) savedOpacity = DEFAULT_OPACITY;
+        savedOpacity = clampOpacity(savedOpacity);
+
+        int sizePx = dpToPx(savedSizeDp);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(sizePx, sizePx);
+        btn.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        btn.setLayoutParams(lp);
+
+        modSizes.put(id, savedSizeDp);
+        modOpacity.put(id, savedOpacity);
+        btn.setAlpha(savedOpacity / 100f);
+        btn.setX(0f);
+        btn.setY(0f);
+        modButtons.put(id, btn);
+
+        btn.setOnClickListener(v -> {
+            lastSelectedButton = v;
+            lastSelectedId = id;
+            lockSwitch.setChecked(InbuiltModSizeStore.getInstance().isLocked(id));
+        });
+
+        btn.setOnTouchListener(new View.OnTouchListener() {
+            float dX, dY;
+            boolean moved;
+
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        view.bringToFront();
+                        dX = event.getRawX() - view.getX();
+                        dY = event.getRawY() - view.getY();
+                        moved = false;
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        float newX = event.getRawX() - dX;
+                        float newY = event.getRawY() - dY;
+                        float left = 0f;
+                        float top = 0f;
+                        float right = grid.getWidth() - view.getWidth();
+                        float bottom = grid.getHeight() - view.getHeight();
+                        if (newX < left) newX = left;
+                        if (newX > right) newX = right;
+                        if (newY < top) newY = top;
+                        if (newY > bottom) newY = bottom;
+                        view.setX(newX);
+                        view.setY(newY);
+                        moved = true;
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        if (!moved) {
+                            view.performClick();
+                        } else {
+                            InbuiltModSizeStore.getInstance().setPositionX(id, view.getX());
+                            InbuiltModSizeStore.getInstance().setPositionY(id, view.getY());
+                        }
+                        return true;
+                }
+                return false;
+            }
+        });
+
+        grid.addView(btn);
+    }
+
+    private void resetAll(FrameLayout grid) {
+        int defaultSizeDp = clampSize(DEFAULT_SIZE_DP);
+        int defaultSizePx = dpToPx(defaultSizeDp);
+        int defaultOpacity = DEFAULT_OPACITY;
+
+        for (int i = 0; i < grid.getChildCount(); i++) {
+            View c = grid.getChildAt(i);
+            FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) c.getLayoutParams();
+            flp.width = defaultSizePx;
+            flp.height = defaultSizePx;
+            flp.leftMargin = 0;
+            flp.topMargin = 0;
+            flp.rightMargin = 0;
+            flp.bottomMargin = 0;
+            c.setLayoutParams(flp);
+            c.setMinimumWidth(0);
+            c.setMinimumHeight(0);
+            ((ImageButton) c).setScaleType(ImageView.ScaleType.FIT_CENTER);
+            c.setX(0f);
+            c.setY(0f);
+            c.setAlpha(defaultOpacity / 100f);
+        }
+
+        for (String key : modSizes.keySet()) modSizes.put(key, defaultSizeDp);
+        for (String key : modOpacity.keySet()) modOpacity.put(key, defaultOpacity);
+
+        lastSelectedButton = null;
+        lastSelectedId = null;
+        lockSwitch.setChecked(false);
+        isAdapterVisible = false;
+        adapterContainer.setVisibility(View.GONE);
+        modZoomLevels.clear();
+        modZoomLevels.put(ModIds.ZOOM, 50);
+        modZoomKeybinds.clear();
+        modZoomKeybinds.put(ModIds.ZOOM, KeyEvent.KEYCODE_C);
+    }
+
+    private int clampSize(int s) { return Math.max(MIN_SIZE_DP, Math.min(s, MAX_SIZE_DP)); }
+    private int clampOpacity(int o) { return Math.max(MIN_OPACITY, Math.min(o, MAX_OPACITY)); }
+    private int dpToPx(int dp) {
+        return Math.round(dp * getContext().getResources().getDisplayMetrics().density);
+    }
+}

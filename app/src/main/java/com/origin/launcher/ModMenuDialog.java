@@ -66,17 +66,7 @@ public class ModMenuDialog {
             animatePop(btnWrench);
             btnWrench.postDelayed(() -> {
                 dialog.dismiss();
-                if (android.provider.Settings.canDrawOverlays(activity)) {
-                    Intent intent = new Intent(activity, 
-                    com.origin.launcher.Launcher.inbuilt.manager.InbuiltModsOverlayService.class);
-                    activity.startService(intent);
-                } else {
-                    Intent intent = new Intent(
-                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        android.net.Uri.parse("package:" + activity.getPackageName())
-                    );
-                    activity.startActivity(intent);
-                }
+                new InbuiltModsCustomizeDialog(activity).show();
             }, 150);
         });
 

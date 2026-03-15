@@ -65,10 +65,6 @@
     android:theme="@style/Theme.FullScreen.Overlay"
     android:screenOrientation="sensorLandscape"
     android:exported="false" />
-    
-    <service
-    android:name=".Launcher.inbuilt.manager.InbuiltModsOverlayService"
-    android:exported="false" />
 
         <activity
             android:name=".Launcher.MinecraftActivity"

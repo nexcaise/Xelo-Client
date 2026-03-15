@@ -170,21 +170,15 @@ adapterContainer.layout(0, 0, adapterContainer.getMeasuredWidth(), adapterContai
             }
         });
 
-        boolean showBackground = getIntent().getBooleanExtra("show_background", true);
         View rootTouch = findViewById(R.id.customize_background);
-        if (showBackground) {
-            rootTouch.setVisibility(View.VISIBLE);
-            rootTouch.setOnTouchListener((v, event) -> {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    lastSelectedButton = null;
-                    lastSelectedId = null;
-                    lockSwitch.setChecked(false);
-                }
-                return false;
-            });
-        } else {
-            rootTouch.setVisibility(View.GONE);
-        }
+        rootTouch.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                lastSelectedButton = null;
+                lastSelectedId = null;
+                lockSwitch.setChecked(false);
+            }
+            return false;
+        });
 
         InbuiltModSizeStore.getInstance().init(getApplicationContext());
 
