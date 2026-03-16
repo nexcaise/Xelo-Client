@@ -521,8 +521,9 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
                         if (!moved) {
                             view.performClick();
                         } else {
-                            InbuiltModSizeStore.getInstance().setPositionX(id, view.getX());
-                            InbuiltModSizeStore.getInstance().setPositionY(id, view.getY());
+                            InbuiltModSizeStore.getInstance().setPositionX(id, view.getX() / grid.getWidth());
+                            InbuiltModSizeStore.getInstance().setPositionY(id, view.getY() / grid.getHeight());
+                            InbuiltOverlayManager.getInstance().refreshPositions();
                         }
                         return true;
                 }

@@ -91,12 +91,14 @@ public class InbuiltOverlayManager {
     }
 
     private int[] getStartPosition(String modId, int defaultX, int defaultY) {
-        InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
-        float savedX = store.getPositionX(modId);
-        float savedY = store.getPositionY(modId);
-        int x = savedX >= 0f ? (int) savedX : defaultX;
-        int y = savedY >= 0f ? (int) savedY : defaultY;
-        return new int[]{x, y};
+    InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+    float savedX = store.getPositionX(modId);
+    float savedY = store.getPositionY(modId);
+    int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
+    int screenHeight = activity.getResources().getDisplayMetrics().heightPixels;
+    int x = savedX >= 0f ? (int)(savedX * screenWidth) : defaultX;
+    int y = savedY >= 0f ? (int)(savedY * screenHeight) : defaultY;
+    return new int[]{x, y};
     }
 
     public void showEnabledOverlays() {
@@ -206,6 +208,9 @@ public class InbuiltOverlayManager {
             }
             showEnabledOverlays();
         }
+    public void refreshPositions() {
+    showEnabledOverlays();
+    }
 
     public void enableAllMods() {
         String[] allIds = {
