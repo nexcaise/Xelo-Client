@@ -66,7 +66,7 @@ public class ModMenuDialog {
             animatePop(btnWrench);
             btnWrench.postDelayed(() -> {
                 dialog.dismiss();
-                new InbuiltModsCustomizeDialog(activity).show();
+                new InbuiltModsCustomizeDialog(activity, false).show();
             }, 150);
         });
 
