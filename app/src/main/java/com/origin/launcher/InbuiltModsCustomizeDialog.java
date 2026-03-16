@@ -83,6 +83,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         Button customizeButton = findViewById(R.id.opacity_button);
 
         lockSwitch = findViewById(R.id.lock_button);
+        lockSwitch.setVisibility(View.VISIBLE);
         lockSwitch.setTextOn("");
         lockSwitch.setTextOff("");
         lockSwitch.setShowText(false);
@@ -167,7 +168,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
         ImageView rootTouch = findViewById(R.id.customize_background);
         if (!showBackground) {
-        rootTouch.setImageDrawable(null);
+        rootTouch.setImageResource(android.R.color.transparent);
         }
         rootTouch.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -289,6 +290,11 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             if (modZoomKeybinds.containsKey(ModIds.ZOOM)) {
                 manager.setZoomKeybind(modZoomKeybinds.get(ModIds.ZOOM));
             }
+            
+        InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+        if (overlayManager != null) {
+        overlayManager.showEnabledOverlays();
+        }
 
             dismiss();
         });
