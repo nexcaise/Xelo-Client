@@ -31,7 +31,6 @@ public class ModMenuOverlay extends BaseOverlayButton {
     }
 
     @Override
-    @Override
     protected void onButtonClick() {
     if (dialog == null || !dialog.isShowing()) {
         if (dialog != null) dialog.hide();
