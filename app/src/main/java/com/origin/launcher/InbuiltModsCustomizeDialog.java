@@ -64,8 +64,8 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     private TextView emptyAdapterText;
 
     public InbuiltModsCustomizeDialog(@NonNull Context context, boolean showBackground) {
-    super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-    this.showBackground = showBackground;
+        super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        this.showBackground = showBackground;
     }
 
     @Override
@@ -74,26 +74,33 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_inbuilt_mods_customize);
 
-        getWindow().setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        );
-        getWindow().setBackgroundDrawable(
-        new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT)
-        );
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
         getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
 
         Button resetButton = findViewById(R.id.reset_button);
         Button doneButton = findViewById(R.id.done_button);
         Button customizeButton = findViewById(R.id.opacity_button);
+        FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
+        View bottomButtons = findViewById(R.id.bottom_buttons_container);
 
         lockSwitch = findViewById(R.id.lock_button);
         lockSwitch.setVisibility(View.VISIBLE);
         lockSwitch.setTextOn("");
         lockSwitch.setTextOff("");
         lockSwitch.setShowText(false);
-        FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
-        View bottomButtons = findViewById(R.id.bottom_buttons_container);
+        ThemeUtils.applyThemeToSwitch(lockSwitch, getContext());
+        lockSwitch.setChecked(false);
+        lockSwitch.setZ(Float.MAX_VALUE);
+        lockSwitch.bringToFront();
+        lockSwitch.requestLayout();
+        lockSwitch.invalidate();
+
+        lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (lastSelectedId != null) {
+                InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isChecked);
+            }
+        });
 
         customizeButton.setText("Customize");
 
@@ -114,12 +121,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         customizeButton.setPadding(padding16dp, padding8dp, padding16dp, padding8dp);
         doneButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
 
-        adapter = new InbuiltCustomizeAdapter(
-            this,
-            MIN_SIZE_DP, MAX_SIZE_DP,
-            MIN_OPACITY, MAX_OPACITY,
-            SEEKBAR_MAX
-        );
+        adapter = new InbuiltCustomizeAdapter(this, MIN_SIZE_DP, MAX_SIZE_DP, MIN_OPACITY, MAX_OPACITY, SEEKBAR_MAX);
 
         adapterContainer = new FrameLayout(getContext());
         GradientDrawable panelBg = new GradientDrawable();
@@ -128,19 +130,12 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         panelBg.setCornerRadius(dpToPx(16));
         adapterContainer.setBackground(panelBg);
 
-        FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(
-            dpToPx(280),
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            Gravity.END
-        );
+        FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(dpToPx(280), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.END);
         adapterContainer.setLayoutParams(containerParams);
         adapterContainer.setVisibility(View.GONE);
 
         adapterRecyclerView = new RecyclerView(getContext());
-        FrameLayout.LayoutParams recyclerParams = new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        );
+        FrameLayout.LayoutParams recyclerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         adapterRecyclerView.setLayoutParams(recyclerParams);
         adapterRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         adapterRecyclerView.setAdapter(adapter);
@@ -151,10 +146,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         emptyAdapterText.setTextColor(Color.WHITE);
         emptyAdapterText.setGravity(Gravity.CENTER);
         emptyAdapterText.setPadding(dpToPx(24), dpToPx(24), dpToPx(24), dpToPx(24));
-        FrameLayout.LayoutParams emptyParams = new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        );
+        FrameLayout.LayoutParams emptyParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         emptyAdapterText.setLayoutParams(emptyParams);
         emptyAdapterText.setVisibility(View.GONE);
 
@@ -165,16 +157,9 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         rootContainer.addView(adapterContainer);
         lockSwitch.bringToFront();
 
-        ThemeUtils.applyThemeToSwitch(lockSwitch, getContext());
-        lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (lastSelectedId != null) {
-                InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isChecked);
-            }
-        });
-
         ImageView rootTouch = findViewById(R.id.customize_background);
         if (!showBackground) {
-        rootTouch.setImageResource(android.R.color.transparent);
+            rootTouch.setImageResource(android.R.color.transparent);
         }
         rootTouch.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -188,16 +173,11 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         InbuiltModSizeStore.getInstance().init(getContext().getApplicationContext());
 
         InbuiltModManager gridManager = InbuiltModManager.getInstance(getContext());
-        if (gridManager.isModAdded(ModIds.AUTO_SPRINT))
-        addModButton(grid, R.drawable.as_unpress, ModIds.AUTO_SPRINT);
-        if (gridManager.isModAdded(ModIds.QUICK_DROP))
-        addModButton(grid, R.drawable.q_unpress, ModIds.QUICK_DROP);
-        if (gridManager.isModAdded(ModIds.TOGGLE_HUD))
-        addModButton(grid, R.drawable.f1_unpress, ModIds.TOGGLE_HUD);
-        if (gridManager.isModAdded(ModIds.CAMERA_PERSPECTIVE))
-        addModButton(grid, R.drawable.f5_unpress, ModIds.CAMERA_PERSPECTIVE);
-        if (gridManager.isModAdded(ModIds.ZOOM))
-        addModButton(grid, R.drawable.zoom_unpress, ModIds.ZOOM);
+        if (gridManager.isModAdded(ModIds.AUTO_SPRINT)) addModButton(grid, R.drawable.as_unpress, ModIds.AUTO_SPRINT);
+        if (gridManager.isModAdded(ModIds.QUICK_DROP)) addModButton(grid, R.drawable.q_unpress, ModIds.QUICK_DROP);
+        if (gridManager.isModAdded(ModIds.TOGGLE_HUD)) addModButton(grid, R.drawable.f1_unpress, ModIds.TOGGLE_HUD);
+        if (gridManager.isModAdded(ModIds.CAMERA_PERSPECTIVE)) addModButton(grid, R.drawable.f5_unpress, ModIds.CAMERA_PERSPECTIVE);
+        if (gridManager.isModAdded(ModIds.ZOOM)) addModButton(grid, R.drawable.zoom_unpress, ModIds.ZOOM);
 
         InbuiltModSizeStore sizeStore = InbuiltModSizeStore.getInstance();
         for (Map.Entry<String, View> e : modButtons.entrySet()) {
@@ -213,42 +193,33 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
         for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
             int s = e.getValue();
-            s = clampSize(s <= 0 ? DEFAULT_SIZE_DP : s);
-            e.setValue(s);
+            e.setValue(clampSize(s <= 0 ? DEFAULT_SIZE_DP : s));
         }
 
         for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
             int o = e.getValue();
-            o = clampOpacity(o <= 0 ? DEFAULT_OPACITY : o);
-            e.setValue(o);
+            e.setValue(clampOpacity(o <= 0 ? DEFAULT_OPACITY : o));
         }
 
         adapter.submitList(getEnabledMods());
 
         customizeButton.setOnClickListener(v -> {
-    boolean show = !isAdapterVisible;
-    isAdapterVisible = show;
-
-    adapterContainer.post(() -> {
-        float panelW = dpToPx(280);
-        int duration = 200;
-
-        if (show) {
-            boolean isEmpty = adapter.getItemCount() == 0;
-            adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
-            emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-
-            adapterContainer.setVisibility(View.VISIBLE);
-            adapterContainer.setTranslationX(panelW);
-            adapterContainer.animate().translationX(0f).setDuration(duration).start();
-
-            float slide = panelW - dpToPx(65);
-            bottomButtons.animate().translationX(-slide).setDuration(duration).start();
-        } else {
-            adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
-                adapterContainer.setVisibility(View.GONE);
-            }).start();
-            bottomButtons.animate().translationX(0f).setDuration(duration).start();
+            boolean show = !isAdapterVisible;
+            isAdapterVisible = show;
+            adapterContainer.post(() -> {
+                float panelW = dpToPx(280);
+                int duration = 200;
+                if (show) {
+                    boolean isEmpty = adapter.getItemCount() == 0;
+                    adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+                    emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                    adapterContainer.setVisibility(View.VISIBLE);
+                    adapterContainer.setTranslationX(panelW);
+                    adapterContainer.animate().translationX(0f).setDuration(duration).start();
+                    bottomButtons.animate().translationX(-(panelW - dpToPx(65))).setDuration(duration).start();
+                } else {
+                    adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
+                    bottomButtons.animate().translationX(0f).setDuration(duration).start();
                 }
             });
         });
@@ -259,49 +230,31 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             adapter.submitList(null);
             adapter.submitList(getEnabledMods());
             isResetting = false;
-
             float panelW = dpToPx(280);
             int duration = 200;
-
             isAdapterVisible = false;
-            adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> {
-            adapterContainer.setVisibility(View.GONE);
-                }).start();
+            adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
             bottomButtons.animate().translationX(0f).setDuration(duration).start();
-            });
+        });
 
         doneButton.setOnClickListener(v -> {
             InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
-
             for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
                 String id = e.getKey();
-                int sizeDp = e.getValue();
-                manager.setOverlayButtonSize(id, sizeDp);
-
+                manager.setOverlayButtonSize(id, e.getValue());
                 View btn = modButtons.get(id);
                 if (btn != null) {
                     InbuiltModSizeStore.getInstance().setPositionX(id, btn.getX());
                     InbuiltModSizeStore.getInstance().setPositionY(id, btn.getY());
                 }
             }
-
             for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
                 manager.setOverlayButtonOpacity(e.getKey(), e.getValue());
             }
-
-            if (modZoomLevels.containsKey(ModIds.ZOOM)) {
-                manager.setZoomLevel(modZoomLevels.get(ModIds.ZOOM));
-            }
-
-            if (modZoomKeybinds.containsKey(ModIds.ZOOM)) {
-                manager.setZoomKeybind(modZoomKeybinds.get(ModIds.ZOOM));
-            }
-            
-        InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
-        if (overlayManager != null) {
-        overlayManager.showEnabledOverlays();
-        }
-
+            if (modZoomLevels.containsKey(ModIds.ZOOM)) manager.setZoomLevel(modZoomLevels.get(ModIds.ZOOM));
+            if (modZoomKeybinds.containsKey(ModIds.ZOOM)) manager.setZoomKeybind(modZoomKeybinds.get(ModIds.ZOOM));
+            InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+            if (overlayManager != null) overlayManager.showEnabledOverlays();
             dismiss();
         });
     }
@@ -309,15 +262,10 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     private List<InbuiltCustomizeAdapter.Item> getEnabledMods() {
         List<InbuiltCustomizeAdapter.Item> list = new ArrayList<>();
         InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
-
-        if (manager.isModAdded(ModIds.AUTO_SPRINT))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.AUTO_SPRINT, R.drawable.as_unpress));
-        if (manager.isModAdded(ModIds.QUICK_DROP))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.QUICK_DROP, R.drawable.q_unpress));
-        if (manager.isModAdded(ModIds.TOGGLE_HUD))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.TOGGLE_HUD, R.drawable.f1_unpress));
-        if (manager.isModAdded(ModIds.CAMERA_PERSPECTIVE))
-            list.add(new InbuiltCustomizeAdapter.Item(ModIds.CAMERA_PERSPECTIVE, R.drawable.f5_unpress));
+        if (manager.isModAdded(ModIds.AUTO_SPRINT)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.AUTO_SPRINT, R.drawable.as_unpress));
+        if (manager.isModAdded(ModIds.QUICK_DROP)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.QUICK_DROP, R.drawable.q_unpress));
+        if (manager.isModAdded(ModIds.TOGGLE_HUD)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.TOGGLE_HUD, R.drawable.f1_unpress));
+        if (manager.isModAdded(ModIds.CAMERA_PERSPECTIVE)) list.add(new InbuiltCustomizeAdapter.Item(ModIds.CAMERA_PERSPECTIVE, R.drawable.f5_unpress));
         if (manager.isModAdded(ModIds.ZOOM)) {
             list.add(new InbuiltCustomizeAdapter.Item(ModIds.ZOOM, R.drawable.zoom_unpress));
             int savedZoom = manager.getZoomLevel();
@@ -325,19 +273,11 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             modZoomLevels.put(ModIds.ZOOM, savedZoom > 0 ? savedZoom : 50);
             modZoomKeybinds.put(ModIds.ZOOM, savedKeybind > 0 ? savedKeybind : KeyEvent.KEYCODE_C);
         }
-
         return list;
     }
 
-    @Override
-    public int getSizeDp(String id) {
-        return clampSize(modSizes.getOrDefault(id, DEFAULT_SIZE_DP));
-    }
-
-    @Override
-    public int getOpacity(String id) {
-        return clampOpacity(modOpacity.getOrDefault(id, DEFAULT_OPACITY));
-    }
+    @Override public int getSizeDp(String id) { return clampSize(modSizes.getOrDefault(id, DEFAULT_SIZE_DP)); }
+    @Override public int getOpacity(String id) { return clampOpacity(modOpacity.getOrDefault(id, DEFAULT_OPACITY)); }
 
     @Override
     public void onSizeChanged(String id, int sizeDp) {
@@ -361,9 +301,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             btn.setLayoutParams(flp);
             btn.requestLayout();
             btn.invalidate();
-            if (btn instanceof ImageButton) {
-                ((ImageButton) btn).setScaleType(ImageView.ScaleType.FIT_CENTER);
-            }
+            if (btn instanceof ImageButton) ((ImageButton) btn).setScaleType(ImageView.ScaleType.FIT_CENTER);
         }
     }
 
@@ -376,21 +314,9 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         if (btn != null) btn.setAlpha(clamped / 100f);
     }
 
-    @Override
-    public int getZoomLevel(String id) {
-        return modZoomLevels.getOrDefault(id, 50);
-    }
-
-    @Override
-    public void onZoomChanged(String id, int zoomLevel) {
-        modZoomLevels.put(id, zoomLevel);
-    }
-
-    @Override
-    public void onItemClicked(String id) {
-        View btn = modButtons.get(id);
-        if (btn != null) btn.performClick();
-    }
+    @Override public int getZoomLevel(String id) { return modZoomLevels.getOrDefault(id, 50); }
+    @Override public void onZoomChanged(String id, int zoomLevel) { modZoomLevels.put(id, zoomLevel); }
+    @Override public void onItemClicked(String id) { View btn = modButtons.get(id); if (btn != null) btn.performClick(); }
 
     @Override
     public String getKeyName(String id) {
@@ -407,21 +333,16 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         builder.setMessage(R.string.zoom_keybind_press);
         builder.setCancelable(true);
         builder.setNegativeButton(R.string.dialog_negative_cancel, null);
-
         AlertDialog kDialog = builder.create();
         GradientDrawable strokeBg = new GradientDrawable();
         strokeBg.setColor(getContext().getResources().getColor(R.color.black, null));
         strokeBg.setStroke(dpToPx(1), getContext().getResources().getColor(R.color.white, null));
         strokeBg.setCornerRadius(dpToPx(16));
         kDialog.getWindow().setBackgroundDrawable(strokeBg);
-
         kDialog.setOnKeyListener((d, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 if (!isKeyboardKey(keyCode)) return true;
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    kDialog.dismiss();
-                    return true;
-                }
+                if (keyCode == KeyEvent.KEYCODE_BACK) { kDialog.dismiss(); return true; }
                 modZoomKeybinds.put(modId, keyCode);
                 adapter.notifyDataSetChanged();
                 kDialog.dismiss();
@@ -429,21 +350,15 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             }
             return false;
         });
-
         kDialog.show();
-        kDialog.getWindow().getDecorView().post(() ->
-            findAndColorTextViews(kDialog.getWindow().getDecorView(),
-                getContext().getResources().getColor(R.color.white, null))
-        );
+        kDialog.getWindow().getDecorView().post(() -> findAndColorTextViews(kDialog.getWindow().getDecorView(), getContext().getResources().getColor(R.color.white, null)));
     }
 
     private void findAndColorTextViews(View view, int color) {
         if (view instanceof TextView) ((TextView) view).setTextColor(color);
         if (view instanceof ViewGroup) {
             ViewGroup vg = (ViewGroup) view;
-            for (int i = 0; i < vg.getChildCount(); i++) {
-                findAndColorTextViews(vg.getChildAt(i), color);
-            }
+            for (int i = 0; i < vg.getChildCount(); i++) findAndColorTextViews(vg.getChildAt(i), color);
         }
     }
 
@@ -463,13 +378,8 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         btn.setMinimumHeight(0);
 
         InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
-        int savedSizeDp = manager.getOverlayButtonSize(id);
-        if (savedSizeDp <= 0) savedSizeDp = DEFAULT_SIZE_DP;
-        savedSizeDp = clampSize(savedSizeDp);
-
-        int savedOpacity = manager.getOverlayButtonOpacity(id);
-        if (savedOpacity <= 0) savedOpacity = DEFAULT_OPACITY;
-        savedOpacity = clampOpacity(savedOpacity);
+        int savedSizeDp = clampSize(manager.getOverlayButtonSize(id) <= 0 ? DEFAULT_SIZE_DP : manager.getOverlayButtonSize(id));
+        int savedOpacity = clampOpacity(manager.getOverlayButtonOpacity(id) <= 0 ? DEFAULT_OPACITY : manager.getOverlayButtonOpacity(id));
 
         int sizePx = dpToPx(savedSizeDp);
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(sizePx, sizePx);
@@ -493,11 +403,12 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             float dX, dY;
             boolean moved;
 
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
                         view.bringToFront();
+                        lockSwitch.bringToFront();
                         dX = event.getRawX() - view.getX();
                         dY = event.getRawY() - view.getY();
                         moved = false;
@@ -505,24 +416,19 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
                     case MotionEvent.ACTION_MOVE:
                         float newX = event.getRawX() - dX;
                         float newY = event.getRawY() - dY;
-                        float left = 0f;
-                        float top = 0f;
-                        float right = grid.getWidth() - view.getWidth();
-                        float bottom = grid.getHeight() - view.getHeight();
-                        if (newX < left) newX = left;
-                        if (newX > right) newX = right;
-                        if (newY < top) newY = top;
-                        if (newY > bottom) newY = bottom;
+                        newX = Math.max(0f, Math.min(newX, grid.getWidth() - view.getWidth()));
+                        newY = Math.max(0f, Math.min(newY, grid.getHeight() - view.getHeight()));
                         view.setX(newX);
                         view.setY(newY);
                         moved = true;
+                        InbuiltOverlayManager.getInstance().updatePosition(id, newX + grid.getLeft(), newY + grid.getTop());
                         return true;
                     case MotionEvent.ACTION_UP:
                         if (!moved) {
                             view.performClick();
                         } else {
-                            InbuiltModSizeStore.getInstance().setPositionX(id, view.getX() / grid.getWidth());
-                            InbuiltModSizeStore.getInstance().setPositionY(id, view.getY() / grid.getHeight());
+                            InbuiltModSizeStore.getInstance().setPositionX(id, view.getX() + grid.getLeft());
+                            InbuiltModSizeStore.getInstance().setPositionY(id, view.getY() + grid.getTop());
                             InbuiltOverlayManager.getInstance().refreshPositions();
                         }
                         return true;
@@ -535,31 +441,23 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     }
 
     private void resetAll(FrameLayout grid) {
-        int defaultSizeDp = clampSize(DEFAULT_SIZE_DP);
-        int defaultSizePx = dpToPx(defaultSizeDp);
-        int defaultOpacity = DEFAULT_OPACITY;
-
+        int defaultSizePx = dpToPx(clampSize(DEFAULT_SIZE_DP));
         for (int i = 0; i < grid.getChildCount(); i++) {
             View c = grid.getChildAt(i);
             FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) c.getLayoutParams();
             flp.width = defaultSizePx;
             flp.height = defaultSizePx;
-            flp.leftMargin = 0;
-            flp.topMargin = 0;
-            flp.rightMargin = 0;
-            flp.bottomMargin = 0;
+            flp.leftMargin = flp.topMargin = flp.rightMargin = flp.bottomMargin = 0;
             c.setLayoutParams(flp);
             c.setMinimumWidth(0);
             c.setMinimumHeight(0);
             ((ImageButton) c).setScaleType(ImageView.ScaleType.FIT_CENTER);
             c.setX(0f);
             c.setY(0f);
-            c.setAlpha(defaultOpacity / 100f);
+            c.setAlpha(DEFAULT_OPACITY / 100f);
         }
-
-        for (String key : modSizes.keySet()) modSizes.put(key, defaultSizeDp);
-        for (String key : modOpacity.keySet()) modOpacity.put(key, defaultOpacity);
-
+        for (String key : modSizes.keySet()) modSizes.put(key, clampSize(DEFAULT_SIZE_DP));
+        for (String key : modOpacity.keySet()) modOpacity.put(key, DEFAULT_OPACITY);
         lastSelectedButton = null;
         lastSelectedId = null;
         lockSwitch.setChecked(false);
@@ -573,7 +471,5 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
     private int clampSize(int s) { return Math.max(MIN_SIZE_DP, Math.min(s, MAX_SIZE_DP)); }
     private int clampOpacity(int o) { return Math.max(MIN_OPACITY, Math.min(o, MAX_OPACITY)); }
-    private int dpToPx(int dp) {
-        return Math.round(dp * getContext().getResources().getDisplayMetrics().density);
-    }
+    private int dpToPx(int dp) { return Math.round(dp * getContext().getResources().getDisplayMetrics().density); }
 }

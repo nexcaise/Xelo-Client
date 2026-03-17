@@ -168,6 +168,7 @@ public abstract class BaseOverlayButton {
                     wmParams.x = (int) (initialX + dx);
                     wmParams.y = (int) (initialY + dy);
                     windowManager.updateViewLayout(overlayView, wmParams);
+                InbuiltOverlayManager.getInstance().updatePosition(getModId(), wmParams.x, wmParams.y);
                 }
                 return true;
             case MotionEvent.ACTION_UP:
@@ -216,6 +217,7 @@ public abstract class BaseOverlayButton {
                     params.leftMargin = (int) (initialX + dx);
                     params.topMargin = (int) (initialY + dy);
                     overlayView.setLayoutParams(params);
+                InbuiltOverlayManager.getInstance().updatePosition(getModId(), params.leftMargin, params.topMargin);
                 }
                 return true;
             case MotionEvent.ACTION_UP:

@@ -35,6 +35,7 @@ public class InbuiltOverlayManager {
     private FpsDisplayOverlay fpsDisplayOverlay;
     private CpsDisplayOverlay cpsDisplayOverlay;
     private ModMenuOverlay modMenuOverlay;
+    private static boolean nametagPatched = false;
 
     public InbuiltOverlayManager(Activity activity) {
         this.activity = activity;
@@ -94,10 +95,8 @@ public class InbuiltOverlayManager {
     InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
     float savedX = store.getPositionX(modId);
     float savedY = store.getPositionY(modId);
-    int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
-    int screenHeight = activity.getResources().getDisplayMetrics().heightPixels;
-    int x = savedX >= 0f ? (int)(savedX * screenWidth) : defaultX;
-    int y = savedY >= 0f ? (int)(savedY * screenHeight) : defaultY;
+    int x = savedX >= 0f ? (int)savedX : defaultX;
+    int y = savedY >= 0f ? (int)savedY : defaultY;
     return new int[]{x, y};
     }
 
@@ -195,21 +194,36 @@ public class InbuiltOverlayManager {
     }
 
     public void toggleMod(String modId) {
-            if (modManager.isModAdded(modId)) {
-            modManager.removeMod(modId);
-            if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
-            NameTagMod.unpatch();
-                }
-            } else {
-            modManager.addMod(modId);
-            if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
-            NameTagMod.patch();
-                }
+    boolean targetEnabled = !modManager.isModAdded(modId);
+    
+    if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
+        if (targetEnabled && !nametagPatched) {
+            if (NameTagMod.patch()) {
+                nametagPatched = true;
             }
-            showEnabledOverlays();
+        } else if (!targetEnabled && nametagPatched) {
+            if (NameTagMod.unpatch()) {
+                nametagPatched = false;
+            }
         }
+    }
+    
+    if (targetEnabled) {
+        modManager.addMod(modId);
+    } else {
+        modManager.removeMod(modId);
+    }
+    showEnabledOverlays();
+    }
+    
     public void refreshPositions() {
     showEnabledOverlays();
+    }
+    
+    public void updatePosition(String modId, float x, float y) {
+    InbuiltModSizeStore.getInstance().setPositionX(modId, x);
+    InbuiltModSizeStore.getInstance().setPositionY(modId, y);
+    refreshPositions();
     }
 
     public void enableAllMods() {
