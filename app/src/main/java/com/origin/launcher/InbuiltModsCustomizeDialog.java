@@ -182,9 +182,8 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         adapterContainer.addView(adapterRecyclerView);
         adapterContainer.addView(emptyAdapterText);
 
-        ViewGroup rootContainer = (ViewGroup) findViewById(android.R.id.content);
-        rootContainer.addView(adapterContainer);
-        lockSwitch.bringToFront();
+        FrameLayout panelContainer = dialog.findViewById(R.id.adapter_panel_container);
+        panelContainer.addView(adapterContainer);
 
         ImageView rootTouch = findViewById(R.id.customize_background);
         if (!showBackground) {
@@ -215,9 +214,13 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             float sx = sizeStore.getPositionX(id);
             float sy = sizeStore.getPositionY(id);
             if (sx >= 0f && sy >= 0f) {
-                    btn.setX(sx);
-                    btn.setY(sy);
-                }
+            grid.post(() -> {
+            int[] gridLocation = new int[2];
+            grid.getLocationOnScreen(gridLocation);
+            btn.setX(sx - gridLocation[0]);
+            btn.setY(sy - gridLocation[1]);
+                });
+            }
         }
 
         for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
@@ -486,9 +489,10 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
                         if (!moved) {
                             view.performClick();
                         } else {
-                            InbuiltModSizeStore.getInstance().setPositionX(id, view.getX());
-                        
-                   InbuiltModSizeStore.getInstance().setPositionY(id, view.getY());
+                            int[] gridLocation = new int[2];
+                    grid.getLocationOnScreen(gridLocation);
+                    InbuiltModSizeStore.getInstance().setPositionX(id, view.getX() + gridLocation[0]);
+                    InbuiltModSizeStore.getInstance().setPositionY(id, view.getY() + gridLocation[1]);
                         }
                         return true;
                 }
