@@ -91,20 +91,14 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         lockSwitch.setTextOn("");
         lockSwitch.setTextOff("");
         lockSwitch.setShowText(false);
-        /*lockSwitch.setTrackTintList(new android.content.res.ColorStateList(
-        new int[][]{
-        new int[]{android.R.attr.state_checked},
-        new int[]{-android.R.attr.state_checked}
-            },
-        new int[]{Color.WHITE, Color.parseColor("#757575")}
-        ));
-        lockSwitch.setThumbTintList(new android.content.res.ColorStateList(
-        new int[][]{
-        new int[]{android.R.attr.state_checked},
-        new int[]{-android.R.attr.state_checked}
-            },
-        new int[]{Color.WHITE, Color.parseColor("#BDBDBD")}
-        ));*/
+        ViewGroup rootView = (ViewGroup) getWindow().getDecorView().findViewById(android.R.id.content);
+        if (rootView != null) {
+        rootView.setClipChildren(false);
+        rootView.setClipToPadding(false);
+        }
+        ((ViewGroup) lockSwitch.getParent()).bringChildToFront(lockSwitch);
+        lockSwitch.bringToFront();
+
         lockSwitch.setChecked(false);
 
         lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {

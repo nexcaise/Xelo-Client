@@ -85,11 +85,15 @@
                 android:paddingRight="24dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp" />
-                
-        <com.google.android.material.materialswitch.MaterialSwitch
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/lock_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
         android:layout_marginBottom="80dp"
         android:layout_margin="16dp"
         android:checked="false"
@@ -100,6 +104,4 @@
         android:clickable="true"
         android:focusable="true" />
 
-        </LinearLayout>
-    </LinearLayout>
 </FrameLayout>
