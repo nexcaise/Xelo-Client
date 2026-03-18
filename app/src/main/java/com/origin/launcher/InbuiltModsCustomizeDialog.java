@@ -91,7 +91,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         lockSwitch.setTextOn("");
         lockSwitch.setTextOff("");
         lockSwitch.setShowText(false);
-        lockSwitch.setTrackTintList(new android.content.res.ColorStateList(
+        /*lockSwitch.setTrackTintList(new android.content.res.ColorStateList(
         new int[][]{
         new int[]{android.R.attr.state_checked},
         new int[]{-android.R.attr.state_checked}
@@ -104,7 +104,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         new int[]{-android.R.attr.state_checked}
             },
         new int[]{Color.WHITE, Color.parseColor("#BDBDBD")}
-        ));
+        ));*/
         lockSwitch.setChecked(false);
 
         lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -138,6 +138,11 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         resetButton.setEllipsize(null);
         customizeButton.setEllipsize(null);
         doneButton.setEllipsize(null);
+        
+        int buttonWidth = dpToPx(100);
+        customizeButton.setMinWidth(buttonWidth);
+        resetButton.setMinWidth(buttonWidth);
+        doneButton.setMinWidth(buttonWidth);
 
         adapter = new InbuiltCustomizeAdapter(this, MIN_SIZE_DP, MAX_SIZE_DP, MIN_OPACITY, MAX_OPACITY, SEEKBAR_MAX);
 
