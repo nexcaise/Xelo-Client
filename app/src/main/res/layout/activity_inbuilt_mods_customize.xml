@@ -89,19 +89,17 @@
         </LinearLayout>
     </LinearLayout>
 
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/lock_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_marginBottom="80dp"
-        android:layout_margin="16dp"
-        android:checked="false"
-        android:text="Lock"
-        android:textOn=""
-        android:textOff=""
-        android:showText="false"
-        android:clickable="true"
-        android:focusable="true" />
+    <com.google.android.material.button.MaterialButton
+    android:id="@+id/lock_button"
+    style="@style/Widget.Material3.Button.OutlinedButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top|end"
+    android:layout_margin="16dp"
+    android:text="Lock"
+    android:textColor="@android:color/white"
+    app:backgroundTint="@android:color/white"
+    app:strokeColor="@android:color/black"
+    app:strokeWidth="0dp" />
 
 </FrameLayout>

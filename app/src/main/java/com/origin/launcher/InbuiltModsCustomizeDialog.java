@@ -2,6 +2,7 @@ package com.origin.launcher;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -24,7 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.button.MaterialButton;
 import com.origin.launcher.Adapter.InbuiltCustomizeAdapter;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModSizeStore;
@@ -40,7 +41,8 @@ import java.util.Map;
 public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomizeAdapter.Callback {
 
     private View lastSelectedButton;
-    private MaterialSwitch lockSwitch;
+    private MaterialButton lockButton;
+    private boolean isLocked = false;
 
     private final Map<String, Integer> modSizes = new HashMap<>();
     private final Map<String, Integer> modOpacity = new HashMap<>();
@@ -86,28 +88,32 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         FrameLayout grid = findViewById(R.id.inbuilt_buttons_grid);
         View bottomButtons = findViewById(R.id.bottom_buttons_container);
 
-        lockSwitch = findViewById(R.id.lock_button);
-        lockSwitch.setVisibility(View.VISIBLE);
-        lockSwitch.setTextOn("");
-        lockSwitch.setTextOff("");
-        lockSwitch.setShowText(false);
-        ViewGroup rootView = (ViewGroup) getWindow().getDecorView().findViewById(android.R.id.content);
-        if (rootView != null) {
-        rootView.setClipChildren(false);
-        rootView.setClipToPadding(false);
-        }
-        ((ViewGroup) lockSwitch.getParent()).bringChildToFront(lockSwitch);
-        lockSwitch.bringToFront();
-        lockSwitch.setElevation(100f);
-        lockSwitch.invalidate();
+        lockButton = findViewById(R.id.lock_button);
+        GradientDrawable lockBg = new GradientDrawable();
+        lockBg.setShape(GradientDrawable.RECTANGLE);
+        lockBg.setColor(Color.WHITE);
+        lockBg.setCornerRadius(dpToPx(12));
+        lockButton.setBackground(lockBg);
+        lockButton.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+        lockButton.setTextColor(Color.BLACK);
+        lockButton.setText("Lock");
+        lockButton.setPadding(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(8));
+        lockButton.setMinHeight(dpToPx(48));
+        lockButton.setMinWidth(dpToPx(80));
+        lockButton.setStateListAnimator(null);
 
-        lockSwitch.setChecked(false);
-
-        lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (lastSelectedId != null) {
-        InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isChecked);
-        }
-    });
+        lockButton.setOnClickListener(v -> {
+            if (lastSelectedId == null) return;
+            isLocked = !isLocked;
+            lockButton.setText(isLocked ? "Locked" : "Lock");
+            lockButton.setTextColor(isLocked ? Color.WHITE : Color.BLACK);
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.RECTANGLE);
+            bg.setColor(isLocked ? Color.BLACK : Color.WHITE);
+            bg.setCornerRadius(dpToPx(12));
+            lockButton.setBackground(bg);
+            InbuiltModSizeStore.getInstance().setLocked(lastSelectedId, isLocked);
+        });
 
         customizeButton.setText("Customize");
 
@@ -119,7 +125,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         resetButton.setBackground(blackBg);
         customizeButton.setBackground(blackBg);
         doneButton.setBackground(blackBg);
-        
+
         resetButton.setStateListAnimator(null);
         customizeButton.setStateListAnimator(null);
         doneButton.setStateListAnimator(null);
@@ -131,14 +137,14 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         resetButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
         customizeButton.setPadding(padding16dp, padding8dp, padding16dp, padding8dp);
         doneButton.setPadding(padding24dp, padding8dp, padding24dp, padding8dp);
-        
+
         resetButton.setMinHeight(dpToPx(48));
         customizeButton.setMinHeight(dpToPx(48));
         doneButton.setMinHeight(dpToPx(48));
         resetButton.setEllipsize(null);
         customizeButton.setEllipsize(null);
         doneButton.setEllipsize(null);
-        
+
         int buttonWidth = dpToPx(100);
         customizeButton.setMinWidth(buttonWidth);
         resetButton.setMinWidth(buttonWidth);
@@ -187,7 +193,14 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 lastSelectedButton = null;
                 lastSelectedId = null;
-                lockSwitch.setChecked(false);
+                isLocked = false;
+                lockButton.setText("Lock");
+                lockButton.setTextColor(Color.BLACK);
+                GradientDrawable bg = new GradientDrawable();
+                bg.setShape(GradientDrawable.RECTANGLE);
+                bg.setColor(Color.WHITE);
+                bg.setCornerRadius(dpToPx(12));
+                lockButton.setBackground(bg);
             }
             return false;
         });
@@ -208,11 +221,11 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             float sx = sizeStore.getPositionX(id);
             float sy = sizeStore.getPositionY(id);
             if (sx >= 0f && sy >= 0f) {
-            grid.post(() -> {
-            int[] gridLocation = new int[2];
-            grid.getLocationOnScreen(gridLocation);
-            btn.setX(sx - gridLocation[0]);
-            btn.setY(sy - gridLocation[1]);
+                grid.post(() -> {
+                    int[] gridLocation = new int[2];
+                    grid.getLocationOnScreen(gridLocation);
+                    btn.setX(sx - gridLocation[0]);
+                    btn.setY(sy - gridLocation[1]);
                 });
             }
         }
@@ -230,71 +243,71 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         adapter.submitList(getEnabledMods());
 
         customizeButton.setOnClickListener(v -> {
-        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.button_pop);
-        v.startAnimation(anim);
-        v.postDelayed(() -> {
-        boolean show = !isAdapterVisible;
-        isAdapterVisible = show;
-        adapterContainer.post(() -> {
-            float panelW = dpToPx(280);
-            int duration = 200;
-            if (show) {
-                boolean isEmpty = adapter.getItemCount() == 0;
-                adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
-                emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-                adapterContainer.setVisibility(View.VISIBLE);
-                adapterContainer.setTranslationX(panelW);
-                adapterContainer.animate().translationX(0f).setDuration(duration).start();
-                bottomButtons.animate().translationX(-(panelW - dpToPx(65))).setDuration(duration).start();
-            } else {
-                adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
-                bottomButtons.animate().translationX(0f).setDuration(duration).start();
+            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.button_pop);
+            v.startAnimation(anim);
+            v.postDelayed(() -> {
+                boolean show = !isAdapterVisible;
+                isAdapterVisible = show;
+                adapterContainer.post(() -> {
+                    float panelW = dpToPx(280);
+                    int duration = 200;
+                    if (show) {
+                        boolean isEmpty = adapter.getItemCount() == 0;
+                        adapterRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+                        emptyAdapterText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                        adapterContainer.setVisibility(View.VISIBLE);
+                        adapterContainer.setTranslationX(panelW);
+                        adapterContainer.animate().translationX(0f).setDuration(duration).start();
+                        bottomButtons.animate().translationX(-(panelW - dpToPx(65))).setDuration(duration).start();
+                    } else {
+                        adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
+                        bottomButtons.animate().translationX(0f).setDuration(duration).start();
                     }
                 });
             }, 150);
         });
 
         resetButton.setOnClickListener(v -> {
-        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.button_pop);
-        v.startAnimation(anim);
-        v.postDelayed(() -> {
-        isResetting = true;
-        resetAll(grid);
-        adapter.submitList(null);
-        adapter.submitList(getEnabledMods());
-        isResetting = false;
-        float panelW = dpToPx(280);
-        int duration = 200;
-        isAdapterVisible = false;
-        adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
-        bottomButtons.animate().translationX(0f).setDuration(duration).start();
+            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.button_pop);
+            v.startAnimation(anim);
+            v.postDelayed(() -> {
+                isResetting = true;
+                resetAll(grid);
+                adapter.submitList(null);
+                adapter.submitList(getEnabledMods());
+                isResetting = false;
+                float panelW = dpToPx(280);
+                int duration = 200;
+                isAdapterVisible = false;
+                adapterContainer.animate().translationX(panelW).setDuration(duration).withEndAction(() -> adapterContainer.setVisibility(View.GONE)).start();
+                bottomButtons.animate().translationX(0f).setDuration(duration).start();
             }, 150);
         });
 
         doneButton.setOnClickListener(v -> {
-        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.button_pop);
-        v.startAnimation(anim);
-        v.postDelayed(() -> {
-        InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
-        for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
-            String id = e.getKey();
-            manager.setOverlayButtonSize(id, e.getValue());
-            View btn = modButtons.get(id);
-            if (btn != null) {
-                int[] gridLoc = new int[2];
-                grid.getLocationOnScreen(gridLoc);
-                InbuiltModSizeStore.getInstance().setPositionX(id, btn.getX() + gridLoc[0]);
-                InbuiltModSizeStore.getInstance().setPositionY(id, btn.getY() + gridLoc[1]);
-            }
-        }
-        for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
-            manager.setOverlayButtonOpacity(e.getKey(), e.getValue());
-        }
-        if (modZoomLevels.containsKey(ModIds.ZOOM)) manager.setZoomLevel(modZoomLevels.get(ModIds.ZOOM));
-        if (modZoomKeybinds.containsKey(ModIds.ZOOM)) manager.setZoomKeybind(modZoomKeybinds.get(ModIds.ZOOM));
-        InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
-        if (overlayManager != null) overlayManager.showEnabledOverlays();
-        dismiss();
+            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.button_pop);
+            v.startAnimation(anim);
+            v.postDelayed(() -> {
+                InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
+                for (Map.Entry<String, Integer> e : modSizes.entrySet()) {
+                    String id = e.getKey();
+                    manager.setOverlayButtonSize(id, e.getValue());
+                    View btn = modButtons.get(id);
+                    if (btn != null) {
+                        int[] gridLoc = new int[2];
+                        grid.getLocationOnScreen(gridLoc);
+                        InbuiltModSizeStore.getInstance().setPositionX(id, btn.getX() + gridLoc[0]);
+                        InbuiltModSizeStore.getInstance().setPositionY(id, btn.getY() + gridLoc[1]);
+                    }
+                }
+                for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
+                    manager.setOverlayButtonOpacity(e.getKey(), e.getValue());
+                }
+                if (modZoomLevels.containsKey(ModIds.ZOOM)) manager.setZoomLevel(modZoomLevels.get(ModIds.ZOOM));
+                if (modZoomKeybinds.containsKey(ModIds.ZOOM)) manager.setZoomKeybind(modZoomKeybinds.get(ModIds.ZOOM));
+                InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+                if (overlayManager != null) overlayManager.showEnabledOverlays();
+                dismiss();
             }, 150);
         });
     }
@@ -393,23 +406,19 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         kDialog.show();
         kDialog.getWindow().getDecorView().post(() -> findAndColorTextViews(kDialog.getWindow().getDecorView(), getContext().getResources().getColor(R.color.white, null)));
     }
-    
+
     @Override
     public void show() {
-    super.show();
-    InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
-    if (overlayManager != null) {
-        overlayManager.hideForCustomize();
-        }
+        super.show();
+        InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+        if (overlayManager != null) overlayManager.hideForCustomize();
     }
-    
+
     @Override
     public void dismiss() {
-    InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
-    if (overlayManager != null) {
-        overlayManager.showAfterCustomize();
-        }
-    super.dismiss();
+        InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
+        if (overlayManager != null) overlayManager.showAfterCustomize();
+        super.dismiss();
     }
 
     private void findAndColorTextViews(View view, int color) {
@@ -454,19 +463,26 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         btn.setOnClickListener(v -> {
             lastSelectedButton = v;
             lastSelectedId = id;
-            lockSwitch.setChecked(InbuiltModSizeStore.getInstance().isLocked(id));
+            boolean locked = InbuiltModSizeStore.getInstance().isLocked(id);
+            isLocked = locked;
+            lockButton.setText(locked ? "Locked" : "Lock");
+            lockButton.setTextColor(locked ? Color.WHITE : Color.BLACK);
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.RECTANGLE);
+            bg.setColor(locked ? Color.BLACK : Color.WHITE);
+            bg.setCornerRadius(dpToPx(12));
+            lockButton.setBackground(bg);
         });
 
         btn.setOnTouchListener(new View.OnTouchListener() {
             float dX, dY;
             boolean moved;
 
-    @Override
-    public boolean onTouch(View view, MotionEvent event) {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
                         view.bringToFront();
-                        lockSwitch.bringToFront();
                         dX = event.getRawX() - view.getX();
                         dY = event.getRawY() - view.getY();
                         moved = false;
@@ -479,16 +495,15 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
                         view.setX(newX);
                         view.setY(newY);
                         moved = true;
-                        
                         return true;
                     case MotionEvent.ACTION_UP:
                         if (!moved) {
                             view.performClick();
                         } else {
                             int[] gridLocation = new int[2];
-                    grid.getLocationOnScreen(gridLocation);
-                    InbuiltModSizeStore.getInstance().setPositionX(id, view.getX() + gridLocation[0]);
-                    InbuiltModSizeStore.getInstance().setPositionY(id, view.getY() + gridLocation[1]);
+                            grid.getLocationOnScreen(gridLocation);
+                            InbuiltModSizeStore.getInstance().setPositionX(id, view.getX() + gridLocation[0]);
+                            InbuiltModSizeStore.getInstance().setPositionY(id, view.getY() + gridLocation[1]);
                         }
                         return true;
                 }
@@ -519,7 +534,14 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         for (String key : modOpacity.keySet()) modOpacity.put(key, DEFAULT_OPACITY);
         lastSelectedButton = null;
         lastSelectedId = null;
-        lockSwitch.setChecked(false);
+        isLocked = false;
+        lockButton.setText("Lock");
+        lockButton.setTextColor(Color.BLACK);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.RECTANGLE);
+        bg.setColor(Color.WHITE);
+        bg.setCornerRadius(dpToPx(12));
+        lockButton.setBackground(bg);
         isAdapterVisible = false;
         adapterContainer.setVisibility(View.GONE);
         modZoomLevels.clear();
