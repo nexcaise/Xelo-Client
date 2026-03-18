@@ -98,6 +98,8 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         }
         ((ViewGroup) lockSwitch.getParent()).bringChildToFront(lockSwitch);
         lockSwitch.bringToFront();
+        lockSwitch.setElevation(100f);
+        lockSwitch.invalidate();
 
         lockSwitch.setChecked(false);
 
