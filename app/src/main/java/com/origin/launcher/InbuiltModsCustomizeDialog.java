@@ -106,17 +106,6 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         new int[]{Color.WHITE, Color.parseColor("#BDBDBD")}
         ));
         lockSwitch.setChecked(false);
-        lockSwitch.setZ(Float.MAX_VALUE);
-        lockSwitch.setTranslationZ(100f);
-        lockSwitch.bringToFront();
-
-        ViewGroup parent = (ViewGroup) lockSwitch.getParent();
-                if (parent != null) {
-            parent.bringChildToFront(lockSwitch);
-            }
-
-        lockSwitch.requestLayout();
-        lockSwitch.invalidate();
 
         lockSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (lastSelectedId != null) {
@@ -236,7 +225,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         adapter.submitList(getEnabledMods());
 
         customizeButton.setOnClickListener(v -> {
-        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.pop_up);
+        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.button_pop);
         v.startAnimation(anim);
         v.postDelayed(() -> {
         boolean show = !isAdapterVisible;
@@ -261,7 +250,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         });
 
         resetButton.setOnClickListener(v -> {
-        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.pop_up);
+        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.button_pop);
         v.startAnimation(anim);
         v.postDelayed(() -> {
         isResetting = true;
@@ -278,7 +267,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         });
 
         doneButton.setOnClickListener(v -> {
-        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.pop_up);
+        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.button_pop);
         v.startAnimation(anim);
         v.postDelayed(() -> {
         InbuiltModManager manager = InbuiltModManager.getInstance(getContext());
@@ -287,8 +276,10 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
             manager.setOverlayButtonSize(id, e.getValue());
             View btn = modButtons.get(id);
             if (btn != null) {
-                InbuiltModSizeStore.getInstance().setPositionX(id, btn.getX());
-                InbuiltModSizeStore.getInstance().setPositionY(id, btn.getY());
+                int[] gridLoc = new int[2];
+                grid.getLocationOnScreen(gridLoc);
+                InbuiltModSizeStore.getInstance().setPositionX(id, btn.getX() + gridLoc[0]);
+                InbuiltModSizeStore.getInstance().setPositionY(id, btn.getY() + gridLoc[1]);
             }
         }
         for (Map.Entry<String, Integer> e : modOpacity.entrySet()) {
