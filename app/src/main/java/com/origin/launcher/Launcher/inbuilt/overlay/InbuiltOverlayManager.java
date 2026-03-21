@@ -35,7 +35,6 @@ public class InbuiltOverlayManager {
     private FpsDisplayOverlay fpsDisplayOverlay;
     private CpsDisplayOverlay cpsDisplayOverlay;
     private ModMenuOverlay modMenuOverlay;
-    private static boolean nametagPatched = false;
 
     public InbuiltOverlayManager(Activity activity) {
         this.activity = activity;
@@ -92,16 +91,15 @@ public class InbuiltOverlayManager {
     }
 
     private int[] getStartPosition(String modId, int defaultX, int defaultY) {
-    InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
-    float savedX = store.getPositionX(modId);
-    float savedY = store.getPositionY(modId);
-    int x = savedX >= 0f ? (int)savedX : defaultX;
-    int y = savedY >= 0f ? (int)savedY : defaultY;
-    return new int[]{x, y};
+        InbuiltModSizeStore store = InbuiltModSizeStore.getInstance();
+        float savedX = store.getPositionX(modId);
+        float savedY = store.getPositionY(modId);
+        int x = savedX >= 0f ? (int) savedX : defaultX;
+        int y = savedY >= 0f ? (int) savedY : defaultY;
+        return new int[]{x, y};
     }
 
     public void showEnabledOverlays() {
-        modManager.applyAllPatches();
         for (Object overlay : new ArrayList<>(overlays)) {
             if (overlay instanceof BaseOverlayButton) {
                 ((BaseOverlayButton) overlay).hide();
@@ -194,67 +192,58 @@ public class InbuiltOverlayManager {
     }
 
     public void toggleMod(String modId) {
-    boolean targetEnabled = !modManager.isModAdded(modId);
-    
-    if (modId.equals(ModIds.THIRD_PERSON_NAMETAG)) {
-        if (targetEnabled && !nametagPatched) {
-            if (NameTagMod.patch()) {
-                nametagPatched = true;
-            }
-        } else if (!targetEnabled && nametagPatched) {
-            if (NameTagMod.unpatch()) {
-                nametagPatched = false;
-            }
+        boolean targetEnabled = !modManager.isModAdded(modId);
+        if (targetEnabled) {
+            modManager.addMod(modId);
+            modManager.applyAllPatches();
+        } else {
+            modManager.removeAllPatches();
+            modManager.removeMod(modId);
         }
+        showEnabledOverlays();
     }
-    
-    if (targetEnabled) {
-        modManager.addMod(modId);
-    } else {
-        modManager.removeMod(modId);
-    }
-    showEnabledOverlays();
-    }
-    
+
     public void refreshPositions() {
-    showEnabledOverlays();
+        showEnabledOverlays();
     }
-    
+
     public void hideForCustomize() {
-    hideAllOverlays();
+        hideAllOverlays();
     }
 
     public void showAfterCustomize() {
-    showEnabledOverlays();
+        showEnabledOverlays();
     }
-    
+
     public void updatePosition(String modId, float x, float y) {
-    InbuiltModSizeStore.getInstance().setPositionX(modId, x);
-    InbuiltModSizeStore.getInstance().setPositionY(modId, y);
-    refreshPositions();
+        InbuiltModSizeStore.getInstance().setPositionX(modId, x);
+        InbuiltModSizeStore.getInstance().setPositionY(modId, y);
+        refreshPositions();
     }
 
     public void enableAllMods() {
         String[] allIds = {
             ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
-            ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY, ModIds.THIRD_PERSON_NAMETAG, //ModIds.MOTION_BLUR
+            ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY,
+            ModIds.THIRD_PERSON_NAMETAG,
         };
         for (String id : allIds) {
             modManager.addMod(id);
         }
+        modManager.applyAllPatches();
         showEnabledOverlays();
     }
 
     public void disableAllMods() {
+        modManager.removeAllPatches();
         String[] allIds = {
             ModIds.QUICK_DROP, ModIds.CAMERA_PERSPECTIVE, ModIds.TOGGLE_HUD,
-            ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY, ModIds.THIRD_PERSON_NAMETAG,
-            //ModIds.MOTION_BLUR
+            ModIds.AUTO_SPRINT, ModIds.ZOOM, ModIds.FPS_DISPLAY, ModIds.CPS_DISPLAY,
+            ModIds.THIRD_PERSON_NAMETAG,
         };
         for (String id : allIds) {
             modManager.removeMod(id);
         }
-        modManager.removeAllPatches();
         showEnabledOverlays();
     }
 }

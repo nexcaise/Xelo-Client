@@ -229,6 +229,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
         FrameLayout panelContainer = findViewById(R.id.adapter_panel_container);
         panelContainer.addView(adapterContainer);
+        panelContainer.bringToFront();
 
         ImageView rootTouch = findViewById(R.id.customize_background);
         if (!showBackground) {
