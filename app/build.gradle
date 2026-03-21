@@ -77,6 +77,11 @@ repositories {
     ndkVersion "27.2.12479018"
 
     packagingOptions {
+    
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    
         pickFirst '**/libc++_shared.so'
         pickFirst '**/libjnidispatch.so'
         pickFirst '**/libxcrash.so'
