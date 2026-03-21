@@ -3,7 +3,6 @@ package com.origin.launcher.Launcher.inbuilt.overlay;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ImageButton;
@@ -16,24 +15,19 @@ import com.origin.launcher.Launcher.inbuilt.manager.InbuiltModManager;
 public class ZoomOverlay extends BaseOverlayButton {
     private static final String TAG = "ZoomOverlay";
     private static final long HOLD_THRESHOLD_MS = 300;
-    private static final float DRAG_THRESHOLD = 10f;
 
     private boolean isZooming = false;
     private boolean initialized = false;
     private boolean isHolding = false;
-    private boolean isDraggingOverride = false;
-    private float touchStartX, touchStartY;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable holdRunnable = () -> {
-        if (!isDraggingOverride) {
-            isHolding = true;
-            if (!isZooming) {
-                isZooming = true;
-                applyZoomLevel();
-                ZoomMod.nativeOnKeyDown();
-                updateButtonState(true);
-            }
+        isHolding = true;
+        if (!isZooming) {
+            isZooming = true;
+            applyZoomLevel();
+            ZoomMod.nativeOnKeyDown();
+            updateButtonState(true);
         }
     };
 
@@ -90,6 +84,60 @@ public class ZoomOverlay extends BaseOverlayButton {
     }
 
     @Override
+    protected void onTouchDown(MotionEvent event) {
+        if (!isHoldModeEnabled() || !initialized) return;
+        isHolding = false;
+        handler.postDelayed(holdRunnable, HOLD_THRESHOLD_MS);
+    }
+
+    @Override
+    protected void onTouchUp(MotionEvent event, boolean wasDragging) {
+        if (!isHoldModeEnabled()) return;
+        handler.removeCallbacks(holdRunnable);
+        if (wasDragging) {
+            if (isHolding && isZooming) {
+                isZooming = false;
+                ZoomMod.nativeOnKeyUp();
+                updateButtonState(false);
+            }
+            isHolding = false;
+            return;
+        }
+        if (isHolding) {
+            if (isZooming) {
+                isZooming = false;
+                ZoomMod.nativeOnKeyUp();
+                updateButtonState(false);
+            }
+            isHolding = false;
+        }
+    }
+
+    @Override
+    protected void onTouchCancel(MotionEvent event) {
+        if (!isHoldModeEnabled()) return;
+        handler.removeCallbacks(holdRunnable);
+        if (isHolding && isZooming) {
+            isZooming = false;
+            ZoomMod.nativeOnKeyUp();
+            updateButtonState(false);
+        }
+        isHolding = false;
+    }
+
+    @Override
+    protected void onDragStarted() {
+        if (!isHoldModeEnabled()) return;
+        handler.removeCallbacks(holdRunnable);
+        if (isHolding && isZooming) {
+            isZooming = false;
+            ZoomMod.nativeOnKeyUp();
+            updateButtonState(false);
+        }
+        isHolding = false;
+    }
+
+    @Override
     protected void onButtonClick() {
         if (!isHoldModeEnabled()) {
             toggleZoom();
@@ -97,62 +145,7 @@ public class ZoomOverlay extends BaseOverlayButton {
     }
 
     @Override
-    protected void onOverlayViewCreated(ImageButton btn) {
-        btn.setOnTouchListener((v, event) -> {
-            if (isHoldModeEnabled()) {
-                return handleHoldModeTouch(event);
-            }
-            return false;
-        });
-    }
-
-    private boolean handleHoldModeTouch(MotionEvent event) {
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                touchStartX = event.getRawX();
-                touchStartY = event.getRawY();
-                isDraggingOverride = false;
-                isHolding = false;
-                handler.postDelayed(holdRunnable, HOLD_THRESHOLD_MS);
-                return false;
-            case MotionEvent.ACTION_MOVE:
-                float dx = Math.abs(event.getRawX() - touchStartX);
-                float dy = Math.abs(event.getRawY() - touchStartY);
-                if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) {
-                    isDraggingOverride = true;
-                    handler.removeCallbacks(holdRunnable);
-                }
-                return false;
-            case MotionEvent.ACTION_UP:
-                handler.removeCallbacks(holdRunnable);
-                if (isDraggingOverride) {
-                    isDraggingOverride = false;
-                    isHolding = false;
-                    return false;
-                }
-                if (isHolding) {
-                    if (isZooming) {
-                        isZooming = false;
-                        ZoomMod.nativeOnKeyUp();
-                        updateButtonState(false);
-                    }
-                    isHolding = false;
-                    return true;
-                }
-                return false;
-            case MotionEvent.ACTION_CANCEL:
-                handler.removeCallbacks(holdRunnable);
-                if (isHolding && isZooming) {
-                    isZooming = false;
-                    ZoomMod.nativeOnKeyUp();
-                    updateButtonState(false);
-                }
-                isDraggingOverride = false;
-                isHolding = false;
-                return false;
-        }
-        return false;
-    }
+    protected void onOverlayViewCreated(ImageButton btn) {}
 
     public void onKeyDown() {
         if (!initialized) {

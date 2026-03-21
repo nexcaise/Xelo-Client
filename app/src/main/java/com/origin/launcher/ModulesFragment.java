@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.content.Intent;
@@ -42,6 +43,8 @@ public class ModulesFragment extends BaseThemedFragment {
     private LinearLayout modulesContainer;
     private List<ModuleItem> moduleItems;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+
+    private static final int SWITCH_DISABLED_COLOR = 0xFF757575;
     
     // Module data class
     private static class ModuleItem {
@@ -365,26 +368,25 @@ private View createModuleView(ModuleItem module) {
     } else {
         // Create switch (EXACTLY matching ThemesFragment pattern)
         int primaryColor = ThemeManager.getInstance().getColor("primary");
-        int surfaceColor = ThemeManager.getInstance().getColor("surface");
 
         MaterialSwitch moduleSwitch = new MaterialSwitch(requireContext());
         moduleSwitch.setChecked(module.isEnabled());
 
         // Apply theme colors to the switch
         moduleSwitch.setThumbTintList(android.content.res.ColorStateList.valueOf(
-                module.isEnabled() ? primaryColor : surfaceColor
+                module.isEnabled() ? primaryColor : SWITCH_DISABLED_COLOR
         ));
         moduleSwitch.setTrackTintList(android.content.res.ColorStateList.valueOf(
-                module.isEnabled() ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(surfaceColor, 0.5f)
+                module.isEnabled() ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(SWITCH_DISABLED_COLOR, 0.5f)
         ));
 
         moduleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             module.setEnabled(isChecked);
             moduleSwitch.setThumbTintList(android.content.res.ColorStateList.valueOf(
-                    isChecked ? primaryColor : surfaceColor
+                    isChecked ? primaryColor : SWITCH_DISABLED_COLOR
             ));
             moduleSwitch.setTrackTintList(android.content.res.ColorStateList.valueOf(
-                    isChecked ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(surfaceColor, 0.5f)
+                    isChecked ? adjustAlpha(primaryColor, 0.5f) : adjustAlpha(SWITCH_DISABLED_COLOR, 0.5f)
             ));
             onModuleToggle(module, isChecked);
         });

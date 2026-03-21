@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -71,6 +72,42 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         this.showBackground = showBackground;
     }
 
+    private GradientDrawable makeBlackBg() {
+        GradientDrawable d = new GradientDrawable();
+        d.setShape(GradientDrawable.RECTANGLE);
+        d.setColor(Color.BLACK);
+        d.setCornerRadius(dpToPx(12));
+        return d;
+    }
+
+    private void applyCyanHighlight(View v) {
+        GradientDrawable highlight = new GradientDrawable();
+        highlight.setShape(GradientDrawable.RECTANGLE);
+        highlight.setColor(Color.TRANSPARENT);
+        highlight.setStroke(dpToPx(2), Color.CYAN);
+        highlight.setCornerRadius(dpToPx(8));
+        v.setBackground(highlight);
+    }
+
+    private void selectButton(View v, String id) {
+        if (lastSelectedButton != null && lastSelectedButton != v) {
+            lastSelectedButton.setBackgroundResource(R.drawable.bg_overlay_button);
+        }
+        lastSelectedButton = v;
+        lastSelectedId = id;
+        applyCyanHighlight(v);
+        boolean locked = InbuiltModSizeStore.getInstance().isLocked(id);
+        isLocked = locked;
+        lockButton.setText(locked ? "Locked" : "Lock");
+        lockButton.setTextColor(locked ? Color.BLACK : Color.WHITE);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.RECTANGLE);
+        bg.setColor(locked ? Color.GRAY : Color.BLACK);
+        bg.setCornerRadius(dpToPx(12));
+        lockButton.setBackground(bg);
+        lockButton.setBackgroundTintList(null);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +116,16 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
 
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
-        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
 
         Button resetButton = findViewById(R.id.reset_button);
         Button doneButton = findViewById(R.id.done_button);
@@ -419,6 +465,15 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
     @Override
     public void show() {
         super.show();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
         InbuiltOverlayManager overlayManager = InbuiltOverlayManager.getInstance();
         if (overlayManager != null) overlayManager.hideForCustomize();
     }
@@ -469,29 +524,7 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         btn.setY(0f);
         modButtons.put(id, btn);
 
-        btn.setOnClickListener(v -> {
-            if (lastSelectedButton != null) {
-                lastSelectedButton.setBackgroundResource(R.drawable.bg_overlay_button);
-            }
-            lastSelectedButton = v;
-            lastSelectedId = id;
-            GradientDrawable highlight = new GradientDrawable();
-            highlight.setShape(GradientDrawable.RECTANGLE);
-            highlight.setColor(Color.TRANSPARENT);
-            highlight.setStroke(dpToPx(2), Color.CYAN);
-            highlight.setCornerRadius(dpToPx(8));
-            v.setBackground(highlight);
-            boolean locked = InbuiltModSizeStore.getInstance().isLocked(id);
-            isLocked = locked;
-            lockButton.setText(locked ? "Locked" : "Lock");
-            lockButton.setTextColor(locked ? Color.BLACK : Color.WHITE);
-            GradientDrawable bg = new GradientDrawable();
-            bg.setShape(GradientDrawable.RECTANGLE);
-            bg.setColor(locked ? Color.GRAY : Color.BLACK);
-            bg.setCornerRadius(dpToPx(12));
-            lockButton.setBackground(bg);
-            lockButton.setBackgroundTintList(null);
-        });
+        btn.setOnClickListener(v -> selectButton(v, id));
 
         btn.setOnTouchListener(new View.OnTouchListener() {
             float dX, dY;
@@ -513,7 +546,10 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
                         newY = Math.max(0f, Math.min(newY, grid.getHeight() - view.getHeight()));
                         view.setX(newX);
                         view.setY(newY);
-                        moved = true;
+                        if (!moved) {
+                            moved = true;
+                            selectButton(view, id);
+                        }
                         return true;
                     case MotionEvent.ACTION_UP:
                         if (!moved) {
@@ -565,14 +601,6 @@ public class InbuiltModsCustomizeDialog extends Dialog implements InbuiltCustomi
         modZoomLevels.put(ModIds.ZOOM, 50);
         modZoomKeybinds.clear();
         modZoomKeybinds.put(ModIds.ZOOM, KeyEvent.KEYCODE_C);
-    }
-
-    private GradientDrawable makeBlackBg() {
-        GradientDrawable d = new GradientDrawable();
-        d.setShape(GradientDrawable.RECTANGLE);
-        d.setColor(Color.BLACK);
-        d.setCornerRadius(dpToPx(12));
-        return d;
     }
 
     private int clampSize(int s) { return Math.max(MIN_SIZE_DP, Math.min(s, MAX_SIZE_DP)); }

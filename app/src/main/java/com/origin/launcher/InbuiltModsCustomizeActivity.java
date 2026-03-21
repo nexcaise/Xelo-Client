@@ -73,6 +73,34 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         return d;
     }
 
+    private void applyCyanHighlight(View v) {
+        GradientDrawable highlight = new GradientDrawable();
+        highlight.setShape(GradientDrawable.RECTANGLE);
+        highlight.setColor(Color.TRANSPARENT);
+        highlight.setStroke(dpToPx(2), Color.CYAN);
+        highlight.setCornerRadius(dpToPx(8));
+        v.setBackground(highlight);
+    }
+
+    private void selectButton(View v, String id) {
+        if (lastSelectedButton != null && lastSelectedButton != v) {
+            lastSelectedButton.setBackgroundResource(R.drawable.bg_overlay_button);
+        }
+        lastSelectedButton = v;
+        lastSelectedId = id;
+        applyCyanHighlight(v);
+        boolean locked = InbuiltModSizeStore.getInstance().isLocked(id);
+        isLocked = locked;
+        lockButton.setText(locked ? "Locked" : "Lock");
+        lockButton.setTextColor(locked ? Color.BLACK : Color.WHITE);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.RECTANGLE);
+        bg.setColor(locked ? Color.GRAY : Color.BLACK);
+        bg.setCornerRadius(dpToPx(12));
+        lockButton.setBackground(bg);
+        lockButton.setBackgroundTintList(null);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -417,29 +445,7 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
         btn.setY(0f);
         modButtons.put(id, btn);
 
-        btn.setOnClickListener(v -> {
-            if (lastSelectedButton != null) {
-                lastSelectedButton.setBackgroundResource(R.drawable.bg_overlay_button);
-            }
-            lastSelectedButton = v;
-            lastSelectedId = id;
-            GradientDrawable highlight = new GradientDrawable();
-            highlight.setShape(GradientDrawable.RECTANGLE);
-            highlight.setColor(Color.TRANSPARENT);
-            highlight.setStroke(dpToPx(2), Color.CYAN);
-            highlight.setCornerRadius(dpToPx(8));
-            v.setBackground(highlight);
-            boolean locked = InbuiltModSizeStore.getInstance().isLocked(id);
-            isLocked = locked;
-            lockButton.setText(locked ? "Locked" : "Lock");
-            lockButton.setTextColor(locked ? Color.BLACK : Color.WHITE);
-            GradientDrawable bg = new GradientDrawable();
-            bg.setShape(GradientDrawable.RECTANGLE);
-            bg.setColor(locked ? Color.GRAY : Color.BLACK);
-            bg.setCornerRadius(dpToPx(12));
-            lockButton.setBackground(bg);
-            lockButton.setBackgroundTintList(null);
-        });
+        btn.setOnClickListener(v -> selectButton(v, id));
 
         btn.setOnTouchListener(new View.OnTouchListener() {
             float dX, dY;
@@ -461,7 +467,10 @@ public class InbuiltModsCustomizeActivity extends BaseThemedActivity implements 
                         newY = Math.max(0f, Math.min(newY, grid.getHeight() - view.getHeight()));
                         view.setX(newX);
                         view.setY(newY);
-                        moved = true;
+                        if (!moved) {
+                            moved = true;
+                            selectButton(view, id);
+                        }
                         return true;
                     case MotionEvent.ACTION_UP:
                         if (!moved) {
