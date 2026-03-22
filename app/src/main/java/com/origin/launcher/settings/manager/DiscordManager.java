@@ -1,5 +1,8 @@
 package com.origin.launcher.settings.manager;
 
+import com.origin.launcher.util.DiscordRPC;
+import com.origin.launcher.activity.DiscordLoginActivity;
+import com.origin.launcher.util.Fallback;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;

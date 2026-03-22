@@ -1,5 +1,9 @@
 package com.origin.launcher.fragment;
 
+import com.origin.launcher.util.ThemeUtils;
+import com.origin.launcher.settings.manager.ThemeManager;
+import com.origin.launcher.util.Fallback;
+import com.origin.launcher.R;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;

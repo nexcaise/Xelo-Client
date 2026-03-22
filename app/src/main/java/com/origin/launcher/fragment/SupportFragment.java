@@ -1,5 +1,6 @@
 package com.origin.launcher.fragment;
 
+import com.origin.launcher.R;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;

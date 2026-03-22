@@ -1,5 +1,7 @@
 package com.origin.launcher.util;
 
+import com.origin.launcher.settings.manager.ThemeManager;
+import com.origin.launcher.R;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;

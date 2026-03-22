@@ -4,6 +4,7 @@ const path = require('path')
 const SOURCE_DIR = './backup/app/src/main/java'
 const TARGET_DIR = './app/src/main/java'
 const ROOT_DIR = './app/src/main/java'
+const BASE_PACKAGE = 'com.origin.launcher'
 
 const SAFE_PREFIX = [
     'android.',
@@ -71,8 +72,7 @@ function buildClassMap(files) {
         const cls = extractClassName(content)
         if (!cls) return
 
-        const pkg = pathToPackage(file)
-        map[cls] = pkg
+        map[cls] = pathToPackage(file)
     })
 
     return map
@@ -85,49 +85,116 @@ function fixPackage(content, pkg) {
     return `package ${pkg}\n\n` + content
 }
 
-function fixImports(content, classMap, isJava) {
+function getExistingImports(content) {
+    const imports = new Set()
+    const regex = /import\s+[a-zA-Z0-9_.]+\.([A-Za-z0-9_]+)/g
+    let m
+    while ((m = regex.exec(content)) !== null) {
+        imports.add(m[1])
+    }
+    return imports
+}
+
+function detectUsedClasses(content) {
+    const used = new Set()
+    const regex = /\b([A-Z][A-Za-z0-9_]+)\b/g
+    let m
+    while ((m = regex.exec(content)) !== null) {
+        used.add(m[1])
+    }
+    return used
+}
+
+function needsRImport(content) {
+    return /\bR\./.test(content)
+}
+
+function insertImports(content, importBlock) {
     return content.replace(
-        /import\s+([a-zA-Z0-9_.]+)\.([A-Za-z0-9_]+);?/g,
-        (match, fullPkg, cls) => {
-
-            if (isExternal(fullPkg)) return match
-
-            if (!fullPkg.startsWith('com.origin.launcher')) return match
-
-            if (classMap[cls]) {
-                const newImport = `${classMap[cls]}.${cls}`
-                return isJava
-                    ? `import ${newImport};`
-                    : `import ${newImport}`
-            }
-
-            return match
+        /package\s+[a-zA-Z0-9_.]+;?\s*/,
+        (match) => {
+            return match.trimEnd() + '\n\n' + importBlock + '\n'
         }
     )
+}
+
+function fixWrongImports(content, classMap, currentPkg, isJava) {
+    return content.replace(
+        /import\s+([a-zA-Z0-9_.]+)\.([A-Za-z0-9_]+);?/g,
+        (match, oldPkg, cls) => {
+
+            if (isExternal(oldPkg)) return match
+
+            const correctPkg = classMap[cls]
+            if (!correctPkg) return match
+
+            if (correctPkg === currentPkg) return ''
+
+            const full = `${correctPkg}.${cls}`
+
+            return isJava
+                ? `import ${full};`
+                : `import ${full}`
+        }
+    )
+}
+
+function generateImports(content, classMap, currentPkg, isJava) {
+    const existing = getExistingImports(content)
+    const used = detectUsedClasses(content)
+
+    const newImports = []
+
+    used.forEach(cls => {
+        const targetPkg = classMap[cls]
+
+        if (!targetPkg) return
+        if (existing.has(cls)) return
+        if (targetPkg === currentPkg) return
+        if (isExternal(targetPkg)) return
+
+        const fullImport = `${targetPkg}.${cls}`
+
+        newImports.push(
+            isJava ? `import ${fullImport};` : `import ${fullImport}`
+        )
+    })
+
+    if (needsRImport(content) && !existing.has('R')) {
+        const rImport = `${BASE_PACKAGE}.R`
+        newImports.push(
+            isJava ? `import ${rImport};` : `import ${rImport}`
+        )
+    }
+
+    if (newImports.length === 0) return content
+
+    return insertImports(content, newImports.join('\n'))
 }
 
 function processFile(file, classMap) {
     let content = fs.readFileSync(file, 'utf8')
 
-    const pkg = pathToPackage(file)
+    const currentPkg = pathToPackage(file)
     const isJava = file.endsWith('.java')
 
-    content = fixPackage(content, pkg)
-    content = fixImports(content, classMap, isJava)
+    content = fixPackage(content, currentPkg)
+    content = fixWrongImports(content, classMap, currentPkg, isJava)
+    content = generateImports(content, classMap, currentPkg, isJava)
 
     fs.writeFileSync(file, content)
     console.log('Fixed:', file)
 }
 
 async function main() {
-    //await copyRecursive(SOURCE_DIR, TARGET_DIR)
+    await copyRecursive(SOURCE_DIR, TARGET_DIR)
 
     const files = walk(ROOT_DIR)
     const classMap = buildClassMap(files)
 
     files.forEach(file => processFile(file, classMap))
 
-    console.log('DONE FIX IMPORT + PACKAGE')
+    console.log('DONE FULL AUTO FIX')
 }
 
 main()

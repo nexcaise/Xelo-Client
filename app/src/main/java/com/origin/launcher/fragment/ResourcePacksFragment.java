@@ -1,5 +1,6 @@
 package com.origin.launcher.fragment;
 
+import com.origin.launcher.R;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;

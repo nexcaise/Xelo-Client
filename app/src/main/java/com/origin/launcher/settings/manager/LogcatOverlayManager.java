@@ -1,5 +1,7 @@
 package com.origin.launcher.settings.manager;
 
+import com.origin.launcher.util.LogcatOverlay;
+import com.origin.launcher.R;
 import android.app.*;
 import android.content.*;
 import android.os.*;

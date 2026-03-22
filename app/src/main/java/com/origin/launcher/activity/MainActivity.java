@@ -1,5 +1,10 @@
 package com.origin.launcher.activity;
 
+import com.origin.launcher.fragment.SettingsFragment;
+import com.origin.launcher.util.ThemeUtils;
+import com.origin.launcher.fragment.DashboardFragment;
+import com.origin.launcher.settings.manager.ThemeManager;
+import com.origin.launcher.R;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;

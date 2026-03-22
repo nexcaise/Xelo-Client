@@ -1,5 +1,7 @@
 package com.origin.launcher.util;
 
+import com.origin.launcher.activity.BaseThemedActivity;
+import com.origin.launcher.R;
 import android.os.Bundle;
 
 import android.widget.TextView;

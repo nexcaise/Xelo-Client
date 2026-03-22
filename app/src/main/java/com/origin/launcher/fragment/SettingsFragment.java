@@ -1,5 +1,7 @@
 package com.origin.launcher.fragment;
 
+import com.origin.launcher.settings.manager.DiscordManager;
+import com.origin.launcher.activity.DiscordLoginActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;

@@ -1,5 +1,8 @@
 package com.origin.launcher.activity;
 
+import com.origin.launcher.settings.manager.ThemeManager;
+import com.origin.launcher.util.ThemeUtils;
+import com.origin.launcher.R;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;

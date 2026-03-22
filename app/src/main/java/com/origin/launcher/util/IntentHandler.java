@@ -1,5 +1,7 @@
 package com.origin.launcher.util;
 
+import com.origin.launcher.activity.BaseThemedActivity;
+import com.origin.launcher.activity.MainActivity;
 import com.origin.launcher.minecraft.MinecraftActivity;
 import com.origin.launcher.minecraft.MinecraftActivityState;
 import android.annotation.SuppressLint;

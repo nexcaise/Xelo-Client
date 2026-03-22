@@ -1,5 +1,6 @@
 package com.origin.launcher.settings.manager;
 
+import com.origin.launcher.util.Fallback;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;

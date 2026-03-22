@@ -1,5 +1,7 @@
 package com.origin.launcher.fragment;
 
+import com.origin.launcher.settings.manager.ThemeManager;
+import com.origin.launcher.util.ThemeUtils;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;

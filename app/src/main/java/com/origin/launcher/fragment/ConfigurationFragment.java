@@ -1,5 +1,10 @@
 package com.origin.launcher.fragment;
 
+import com.origin.launcher.settings.FeatureSettings;
+import com.origin.launcher.settings.manager.LogcatOverlayManager;
+import com.origin.launcher.util.ThemeUtils;
+import com.origin.launcher.settings.manager.ThemeManager;
+import com.origin.launcher.R;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;

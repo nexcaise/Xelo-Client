@@ -1,5 +1,6 @@
 package com.origin.launcher.fragment;
 
+import com.origin.launcher.R;
 import android.content.DialogInterface;
 import org.jetbrains.annotations.NotNull;
 import android.annotation.SuppressLint;
