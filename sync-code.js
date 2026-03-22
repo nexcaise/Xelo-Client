@@ -59,20 +59,37 @@ function pathToPackage(filePath) {
     return rel.split(path.sep).join('.')
 }
 
-function extractClassName(content) {
-    const m = content.match(/class\s+([A-Za-z0-9_]+)/)
-    return m ? m[1] : null
+function extractClassNames(content) {
+    const classes = []
+    const regex = /\b(class|interface|enum|object)\s+([A-Za-z0-9_]+)/g
+    let m
+
+    while ((m = regex.exec(content)) !== null) {
+        classes.push(m[2])
+    }
+
+    return classes
 }
+
+const IGNORE_CLASSES = new Set([
+    'String','Integer','Boolean','Long','Short','Double','Float',
+    'Object','Class','Void'
+])
 
 function buildClassMap(files) {
     const map = {}
 
     files.forEach(file => {
         const content = fs.readFileSync(file, 'utf8')
-        const cls = extractClassName(content)
-        if (!cls) return
+        const classes = extractClassNames(content)
+        if (!classes.length) return
 
-        map[cls] = pathToPackage(file)
+        const pkg = pathToPackage(file)
+
+        classes.forEach(cls => {
+            if (IGNORE_CLASSES.has(cls)) return
+            map[cls] = pkg
+        })
     })
 
     return map
