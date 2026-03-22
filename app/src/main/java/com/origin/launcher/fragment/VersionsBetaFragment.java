@@ -1,6 +1,8 @@
 package com.origin.launcher.fragment;
 
+import com.origin.launcher.util.DiscordRPCHelper;
 import com.origin.launcher.util.VersionsRepository;
+import com.origin.launcher.util.VersionEntry;
 import com.origin.launcher.util.ThemeUtils;
 import com.origin.launcher.activity.MainActivity;
 import com.origin.launcher.R;

@@ -1,6 +1,7 @@
 package com.origin.launcher.fragment;
 
 import com.origin.launcher.util.ThemeUtils;
+import com.origin.launcher.util.DiscordRPCHelper;
 import com.origin.launcher.R;
 import android.content.Intent;
 import android.net.Uri;

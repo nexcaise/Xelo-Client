@@ -1,5 +1,6 @@
 package com.origin.launcher.util;
 
+import com.origin.launcher.adapter.ViewHolder;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;

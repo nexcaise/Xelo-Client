@@ -3,6 +3,7 @@ package com.origin.launcher.util;
 import com.origin.launcher.settings.manager.DiscordManager;
 import com.origin.launcher.activity.MainActivity;
 import com.origin.launcher.fragment.SettingsFragment;
+import com.origin.launcher.settings.manager.DiscordUser;
 import android.content.Context;
 import android.util.Log;
 

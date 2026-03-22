@@ -1,5 +1,7 @@
 package com.origin.launcher.dialog;
 
+import com.origin.launcher.adapter.Callback;
+import com.origin.launcher.adapter.Item;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;

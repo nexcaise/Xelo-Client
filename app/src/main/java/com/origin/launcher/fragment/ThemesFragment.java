@@ -2,8 +2,10 @@ package com.origin.launcher.fragment;
 
 import com.origin.launcher.settings.manager.ThemeManager;
 import com.origin.launcher.util.Fallback;
+import com.origin.launcher.settings.manager.ThemeMetadata;
 import com.origin.launcher.util.ThemeUtils;
 import com.origin.launcher.activity.BaseThemedActivity;
+import com.origin.launcher.util.DiscordRPCHelper;
 import com.origin.launcher.R;
 import android.app.Activity;
 import android.content.Intent;

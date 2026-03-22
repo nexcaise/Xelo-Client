@@ -1,5 +1,6 @@
 package com.origin.launcher.dialog;
 
+import com.origin.launcher.adapter.ModEntry;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;

@@ -1,6 +1,10 @@
 package com.origin.launcher.fragment;
 
 import com.origin.launcher.settings.manager.DiscordManager;
+import com.origin.launcher.settings.manager.DiscordLoginCallback;
+import com.origin.launcher.adapter.OnVersionSelectedListener;
+import com.origin.launcher.util.DiscordRPCHelper;
+import com.origin.launcher.settings.manager.DiscordUser;
 import com.origin.launcher.activity.DiscordLoginActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
